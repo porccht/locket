@@ -539,7 +539,6 @@
       padding: 2px 4px;
     }
 
-    /* Kỷ niệm dạng lịch phân ô giống ảnh mẫu */
     .memories-section {
       display: none;
       width: 100%;
@@ -642,7 +641,6 @@
       border-radius: 6px;
     }
 
-    /* Danh sách bạn bè & Trò chuyện */
     .chat-section {
       display: none;
       width: 100%;
@@ -706,7 +704,6 @@
       object-fit: cover;
     }
 
-    /* Cửa sổ Chat chi tiết có thu hồi, gửi ảnh, thả icon */
     .thread-screen {
       position: fixed;
       inset: 0;
@@ -812,7 +809,7 @@
     }
 
     .msg-reactions-tag {
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       align-self: flex-end;
     }
 
@@ -864,7 +861,6 @@
       cursor: pointer;
     }
 
-    /* Hồ sơ & Cài đặt */
     .profile-drawer {
       position: fixed;
       inset: 0;
@@ -1210,6 +1206,23 @@
       font-size: 0.92rem;
       outline: none;
     }
+
+    .emoji-picker-row {
+      display: flex;
+      justify-content: space-around;
+      gap: 8px;
+      padding: 6px 0;
+    }
+
+    .emoji-pick-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -1296,7 +1309,7 @@
       <div id="feedCardsWrap" style="display:flex;flex-direction:column;gap:20px;"></div>
     </section>
 
-    <!-- KỶ NIỆM DẠNG LỊCH PHÂN Ô GIỐNG ẢNH MẪU -->
+    <!-- KỶ NIỆM DẠNG LỊCH PHÂN Ô -->
     <section class="memories-section" id="screenMemories">
       <div class="calendar-month-card">
         <div class="calendar-month-title" id="calendarMonthTitle">Tháng 11 2026</div>
@@ -1332,7 +1345,7 @@
     </nav>
   </div>
 
-  <!-- CỬA SỔ CHAT CHI TIẾT (GỬI TIN NHẮN, GỬI ẢNH, THẢ ICON, THU HỒI) -->
+  <!-- CỬA SỔ CHAT CHI TIẾT -->
   <div class="thread-screen" id="threadScreen">
     <div class="thread-shell">
       <div class="thread-header">
@@ -1351,6 +1364,22 @@
         </div>
         <button type="button" class="thread-send-circle" id="btnSendChatText" title="Gửi">↑</button>
       </div>
+    </div>
+  </div>
+
+  <!-- SHEET CHỌN ICON THẢ VÀO TIN NHẮN -->
+  <div class="modal-sheet" id="emojiPickerSheet">
+    <div class="modal-box ios26-pill">
+      <div style="text-align:center;font-weight:700;">Thả cảm xúc vào tin nhắn</div>
+      <div class="emoji-picker-row">
+        <button type="button" class="emoji-pick-btn" onclick="confirmEmojiReaction('❤️')">❤️</button>
+        <button type="button" class="emoji-pick-btn" onclick="confirmEmojiReaction('🔥')">🔥</button>
+        <button type="button" class="emoji-pick-btn" onclick="confirmEmojiReaction('😂')">😂</button>
+        <button type="button" class="emoji-pick-btn" onclick="confirmEmojiReaction('😍')">😍</button>
+        <button type="button" class="emoji-pick-btn" onclick="confirmEmojiReaction('👍')">👍</button>
+        <button type="button" class="emoji-pick-btn" onclick="confirmEmojiReaction('😢')">😢</button>
+      </div>
+      <button type="button" class="sheet-choice" id="btnCloseEmojiSheet">Đóng</button>
     </div>
   </div>
 
@@ -1542,6 +1571,7 @@
       phoneMode: false,
       activeChatPartner: null,
       activeConvId: "",
+      pendingEmojiMsgId: "",
       touchStartY: 0
     };
 
@@ -1616,12 +1646,10 @@
       btn.addEventListener("click", () => setActiveTab(btn.dataset.nav));
     });
 
-    // Nhấn Lịch sử -> mở danh sách moment của tôi & bạn bè đã đăng
     document.getElementById("btnHistoryJump").addEventListener("click", () => setActiveTab("feed"));
     document.getElementById("btnTopRollcall").addEventListener("click", () => setActiveTab("feed"));
     document.getElementById("btnFriendsPill").addEventListener("click", () => setActiveTab("chat"));
 
-    // Vuốt lên ở màn Camera để mở danh sách moment đã đăng
     document.getElementById("screenCamera").addEventListener("touchstart", e => {
       appState.touchStartY = e.touches[0].clientY;
     }, { passive: true });
@@ -1865,7 +1893,7 @@
       try {
         const res = await fetch("/api/post", { method: "POST", body: fd });
         const data = await res.json();
-        if (data.ok) {
+        if (res.ok && data.ok) {
           showNotice("Đã gửi thành công!");
           document.getElementById("composeCaptionInput").value = "";
           document.getElementById("screenCompose").classList.remove("active");
@@ -1885,7 +1913,7 @@
       wrap.innerHTML = `<div class="ios26-pill" style="padding:16px;border-radius:24px;text-align:center;">Đang tải khoảnh khắc...</div>`;
       const res = await fetch("/api/feed");
       const data = await res.json();
-      if (!data.ok || !Array.isArray(data.items) || !data.items.length) {
+      if (!res.ok || !data.ok || !Array.isArray(data.items) || !data.items.length) {
         wrap.innerHTML = `<div class="ios26-pill" style="padding:16px;border-radius:24px;text-align:center;color:var(--muted);">Chưa có khoảnh khắc nào</div>`;
         return;
       }
@@ -1947,7 +1975,6 @@
       showNotice("Đã gửi tin nhắn");
     }
 
-    // Lịch Kỷ niệm phân ô theo tháng giống ảnh mẫu
     async function loadMemoriesCalendar() {
       const grid = document.getElementById("calendarSlotsGrid");
       grid.innerHTML = "";
@@ -1958,7 +1985,7 @@
       try {
         const res = await fetch("/api/memories");
         const data = await res.json();
-        if (data.ok && Array.isArray(data.items)) items = data.items;
+        if (res.ok && data.ok && Array.isArray(data.items)) items = data.items;
       } catch (e) {
         items = [];
       }
@@ -1966,7 +1993,6 @@
       document.getElementById("locketTotalCount").textContent = items.length;
       document.getElementById("streakDayCount").textContent = Math.max(1, items.length);
 
-      // Tạo 28 ô lịch theo hàng chấm + ô vuông như ảnh mẫu
       for (let i = 0; i < 28; i++) {
         if (i < 14 && i !== 9) {
           const dot = document.createElement("div");
@@ -1994,7 +2020,6 @@
       setActiveTab("feed");
     });
 
-    // Danh sách bạn bè & mở khung chat chi tiết
     function renderFriendsAndChats(filterText = "") {
       const q = filterText.trim().toLowerCase();
       const filtered = appState.friends.filter(f => !q || f.name.toLowerCase().includes(q));
@@ -2052,7 +2077,7 @@
       box.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:0.84rem;">Đang tải tin nhắn...</div>`;
       const res = await fetch(`/api/chat/messages?other_user_id=${encodeURIComponent(appState.activeChatPartner.uid)}`);
       const data = await res.json();
-      if (!data.ok) {
+      if (!res.ok || !data.ok) {
         box.innerHTML = `<div style="text-align:center;color:var(--muted);">${data.error || "Không tải được tin nhắn"}</div>`;
         return;
       }
@@ -2093,7 +2118,7 @@
               </button>
             ` : ""}
             ${msgId ? `
-              <button type="button" class="Chat_tool__ohcz7" aria-label="Thả cảm xúc" onclick="reactMessage('${msgId}', '❤️')" title="Thả cảm xúc">
+              <button type="button" class="Chat_tool__ohcz7" aria-label="Thả cảm xúc" onclick="openEmojiPicker('${msgId}')" title="Thả cảm xúc">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="9"></circle>
                   <path d="M8.5 14a4.5 4.5 0 0 0 7 0"></path>
@@ -2118,7 +2143,12 @@
       const fd = new FormData();
       fd.append("receiver_uid", appState.activeChatPartner.uid);
       fd.append("text", text);
-      await fetch("/api/chat/send", { method: "POST", body: fd });
+      const res = await fetch("/api/chat/send", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        showNotice(data.error || "Không gửi được tin nhắn");
+        return;
+      }
       await refreshChatMessages();
     }
 
@@ -2135,13 +2165,32 @@
       fd.append("image", f);
       fd.append("text", document.getElementById("threadTextInput").value.trim());
       document.getElementById("threadTextInput").value = "";
-      await fetch("/api/chat/send", { method: "POST", body: fd });
+      const res = await fetch("/api/chat/send", { method: "POST", body: fd });
+      const data = await res.json();
       chatImageInput.value = "";
+      if (!res.ok || !data.ok) {
+        showNotice(data.error || "Không gửi được ảnh");
+        return;
+      }
       await refreshChatMessages();
     });
 
-    async function reactMessage(messageId, emoji) {
-      await fetch("/api/chat/reaction", {
+    const emojiPickerSheet = document.getElementById("emojiPickerSheet");
+    function openEmojiPicker(messageId) {
+      appState.pendingEmojiMsgId = messageId;
+      emojiPickerSheet.classList.add("open");
+    }
+
+    document.getElementById("btnCloseEmojiSheet").addEventListener("click", () => {
+      appState.pendingEmojiMsgId = "";
+      emojiPickerSheet.classList.remove("open");
+    });
+
+    async function confirmEmojiReaction(emoji) {
+      const messageId = appState.pendingEmojiMsgId;
+      emojiPickerSheet.classList.remove("open");
+      if (!messageId) return;
+      const res = await fetch("/api/chat/reaction", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2151,12 +2200,17 @@
           emoji
         })
       });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        showNotice(data.error || "Không thả được icon");
+        return;
+      }
       showNotice(`Đã thả ${emoji} vào tin nhắn`);
       await refreshChatMessages();
     }
 
     async function revokeMessage(messageId) {
-      await fetch("/api/chat/delete", {
+      const res = await fetch("/api/chat/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2165,11 +2219,15 @@
           message_id: messageId
         })
       });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        showNotice(data.error || "Không thu hồi được tin nhắn");
+        return;
+      }
       showNotice("Đã thu hồi tin nhắn");
       await refreshChatMessages();
     }
 
-    // Hồ sơ & Cài đặt
     const profileDrawer = document.getElementById("profileDrawer");
     document.getElementById("btnOpenProfile").addEventListener("click", () => {
       profileDrawer.classList.add("open");
@@ -2205,7 +2263,7 @@
         })
       });
       const data = await res.json();
-      if (data.ok) {
+      if (res.ok && data.ok) {
         appState.meta = data.meta;
         document.getElementById("heroFullName").textContent = `${fn} ${ln}`.trim() || "Thanh Long ❤️‍🩹";
         applyFrameStyle();
@@ -2236,7 +2294,7 @@
       const res = await fetch("/api/profile/avatar", { method: "POST", body: fd });
       const data = await res.json();
       avatarSheet.classList.remove("open");
-      if (data.ok) {
+      if (res.ok && data.ok) {
         const finalSrc = data.avatar_url ? `${data.avatar_url}&r=${Date.now()}` : URL.createObjectURL(f);
         document.getElementById("heroAvatarBox").innerHTML = `<img src="${finalSrc}" alt="" />`;
         document.getElementById("btnOpenProfile").innerHTML = `<img src="${finalSrc}" alt="" />`;
@@ -2291,7 +2349,7 @@
         body: JSON.stringify({ identifier: idVal, password: pwVal })
       });
       const data = await res.json();
-      if (data.ok) {
+      if (res.ok && data.ok) {
         fb.textContent = "Đăng nhập thành công!";
         await bootApp();
         setTimeout(() => authScreen.classList.remove("open"), 450);
