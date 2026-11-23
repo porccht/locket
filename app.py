@@ -8,46 +8,86 @@ from locketlam.exceptions import LocketError
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SESSION_FILE = os.path.join(BASE_DIR, "locketlam_session.json")
 PRESETS_FILE = os.path.join(BASE_DIR, "locketlam", "caption_presets.json")
+CUSTOM_META_FILE = os.path.join(BASE_DIR, "user_custom_meta.json")
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = 120 * 1024 * 1024
 
 client = LocketClient(session_path=SESSION_FILE)
 
-CURATED_PRESETS = [
-    {"id": "standard", "label": "Mặc định", "icon": "", "colors": [], "text_color": "#FFFFFF"},
+DEFAULT_META = {
+    "birthday": "Tháng 5 16th",
+    "email_display": "",
+    "gold_badge": True,
+    "frame_style": "rgb-liquid",
+    "about_lines": [
+        "Thanh Long ❤️‍🩹: Facebook.com/htl165",
+        "Thanh Long ❤️‍🩹: Tiktok.com/@tlongmmo",
+    ],
+}
+
+QUICK_CAPTIONS = [
+    {"id": "standard", "label": "Văn bản", "icon": "Aa", "colors": [], "text_color": "#FFFFFF"},
+    {"id": NoteType.REVIEW, "label": "Review", "icon": "⭐", "colors": ["#2B2A24", "#3B382A"], "text_color": "#FFD43B"},
+    {"id": NoteType.LOCATION, "label": "Location", "icon": "📍", "colors": ["#1E252B", "#2C3842"], "text_color": "#FFFFFF"},
+    {"id": NoteType.WEATHER, "label": "Weather", "icon": "☁️", "colors": ["#4A6FA5", "#7790A6"], "text_color": "#FFFFFF"},
+    {"id": NoteType.TIME, "label": "13:22", "icon": "🕒", "colors": ["#22252A", "#32363E"], "text_color": "#FFFFFF"},
+    {"id": NoteType.STREAK, "label": "1", "icon": "🔥", "colors": ["#3A2416", "#5E3519"], "text_color": "#FF9F1C"},
+    {"id": NoteType.PARTY_TIME, "label": "Party Time!", "icon": "🪩", "colors": ["#1EA866", "#2BD984"], "text_color": "#FFFFFF"},
+    {"id": NoteType.OOTD, "label": "OOTD", "icon": "🕶", "colors": ["#1F2224", "#35393C"], "text_color": "#FFFFFF"},
+    {"id": NoteType.MISS_YOU, "label": "Miss you", "icon": "🥰", "colors": ["#E62E4D", "#FF5E7E"], "text_color": "#FFFFFF"},
     {"id": NoteType.DANG_BAN_TUONG_TU, "label": "Đang bận tương tư", "icon": "💭", "colors": ["#FF758C", "#FF7EB3"], "text_color": "#FFFFFF"},
     {"id": NoteType.DOI_ROI, "label": "Dỗi rồi", "icon": "😤", "colors": ["#FF416C", "#FF4B2B"], "text_color": "#FFFFFF"},
     {"id": NoteType.MUON_DUOC_OM, "label": "Muốn được ôm", "icon": "🫂", "colors": ["#667EEA", "#764BA2"], "text_color": "#FFFFFF"},
-    {"id": NoteType.OOTD, "label": "OOTD", "icon": "🕶", "colors": ["#232526", "#414345"], "text_color": "#FFFFFF"},
-    {"id": NoteType.NGAY_MOI_VUI_VE, "label": "Ngày mới vui vẻ", "icon": "☀️", "colors": ["#F7971E", "#FFD200"], "text_color": "#141418"},
-    {"id": NoteType.NGU_NGON, "label": "Ngủ ngon", "icon": "🌙", "colors": ["#141E30", "#243B55"], "text_color": "#FFFFFF"},
 ]
 
 
-def load_preset_catalog():
-    items = list(CURATED_PRESETS)
+def load_meta() -> dict:
+    data = dict(DEFAULT_META)
+    if os.path.exists(CUSTOM_META_FILE):
+        try:
+            with open(CUSTOM_META_FILE, "r", encoding="utf-8") as f:
+                saved = json.load(f)
+                if isinstance(saved, dict):
+                    data.update(saved)
+        except Exception:
+            pass
+    return data
+
+
+def save_meta(new_data: dict):
+    current = load_meta()
+    current.update(new_data)
+    try:
+        with open(CUSTOM_META_FILE, "w", encoding="utf-8") as f:
+            json.dump(current, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
+    return current
+
+
+def load_presets() -> list:
+    items = list(QUICK_CAPTIONS)
     if os.path.exists(PRESETS_FILE):
         try:
             with open(PRESETS_FILE, "r", encoding="utf-8") as f:
                 raw = json.load(f)
-            existing_ids = {p["id"] for p in items}
-            for key, val in raw.items():
-                if not isinstance(val, dict):
+            seen = {x["id"] for x in items}
+            for k, v in raw.items():
+                if not isinstance(v, dict):
                     continue
-                pid = val.get("overlay_id") or key
-                clean_id = pid.replace("caption:", "")
-                if clean_id in existing_ids or key in existing_ids:
+                oid = (v.get("overlay_id") or k).replace("caption:", "")
+                if oid in seen or k in seen:
                     continue
-                label = val.get("text") or key.replace("_", " ").title()
+                seen.add(oid)
                 items.append({
-                    "id": clean_id,
-                    "label": label,
-                    "icon": val.get("icon") or "",
-                    "colors": val.get("colors") or [],
-                    "text_color": val.get("text_color") or "#FFFFFF"
+                    "id": oid,
+                    "label": v.get("text") or k.replace("_", " ").title(),
+                    "icon": v.get("icon") or "",
+                    "colors": v.get("colors") or [],
+                    "text_color": v.get("text_color") or "#FFFFFF",
                 })
-                if len(items) >= 36:
+                if len(items) >= 32:
                     break
         except Exception:
             pass
@@ -62,56 +102,152 @@ def index():
 @app.route("/api/boot", methods=["GET"])
 def api_boot():
     authed = client.is_authenticated()
-    profile = None
+    profile = {}
     friends = []
+    meta = load_meta()
+
     if authed:
         try:
-            profile = client.user.get_profile()
+            p = client.user.get_profile()
+            if isinstance(p, dict):
+                profile = p
         except Exception:
-            profile = None
+            profile = {}
         try:
-            raw_friends = client.friends.get_all_friends() or []
-            for fr in raw_friends:
-                if isinstance(fr, dict):
-                    uid = fr.get("uid") or fr.get("id") or ""
-                    first = fr.get("first_name") or fr.get("firstName") or ""
-                    last = fr.get("last_name") or fr.get("lastName") or ""
-                    name = f"{first} {last}".strip() or fr.get("username") or uid[:8]
-                    avatar = fr.get("profile_pic") or fr.get("avatar_url") or fr.get("photo_url") or ""
+            raw_f = client.friends.get_all_friends() or []
+            for item in raw_f:
+                if isinstance(item, dict):
+                    uid = item.get("uid") or item.get("id") or ""
+                    fn = item.get("first_name") or item.get("firstName") or ""
+                    ln = item.get("last_name") or item.get("lastName") or ""
+                    full = f"{fn} {ln}".strip() or item.get("username") or uid[:8]
+                    av = item.get("profile_pic") or item.get("avatar_url") or item.get("photo_url") or ""
                     if uid:
-                        friends.append({"uid": uid, "name": name, "avatar": avatar})
+                        friends.append({"uid": uid, "name": full, "avatar": av})
         except Exception:
             friends = []
 
+    uid = client.session.uid if authed else ""
+    username = profile.get("username") or (uid[:10] if uid else "tlong")
     return jsonify({
         "authenticated": authed,
-        "uid": client.session.uid if authed else None,
-        "profile": profile,
+        "uid": uid,
+        "invite_link": f"https://locket.cam/{username}",
+        "profile": {
+            "first_name": profile.get("first_name") or "Thanh Long",
+            "last_name": profile.get("last_name") or "❤️‍🩹",
+            "username": username,
+            "email": meta.get("email_display") or profile.get("email") or "",
+            "avatar": profile.get("profile_pic") or profile.get("avatar_url") or "",
+        },
+        "meta": meta,
         "friends": friends,
-        "presets": load_preset_catalog()
+        "presets": load_presets(),
     })
 
 
-@app.route("/api/login", methods=["POST"])
+@app.route("/api/auth/login", methods=["POST"])
 def api_login():
     data = request.get_json(silent=True) or {}
-    email = (data.get("email") or "").strip()
+    identifier = (data.get("identifier") or data.get("email") or data.get("phone") or "").strip()
     password = data.get("password") or ""
-    if not email or not password:
-        return jsonify({"ok": False, "error": "Vui lòng nhập email và mật khẩu."}), 400
+    if not identifier:
+        return jsonify({"ok": False, "error": "Vui lòng nhập email hoặc số điện thoại."}), 400
     try:
-        client.login(email, password)
+        if password:
+            client.login(identifier, password)
+        else:
+            # Nếu client hỗ trợ gửi OTP/đăng nhập theo số điện thoại hoặc email
+            if hasattr(client.session, "send_login_code"):
+                client.session.send_login_code(identifier)
+                return jsonify({"ok": True, "need_otp": True, "message": "Đã gửi mã xác thực."})
+            return jsonify({"ok": False, "error": "Vui lòng nhập mật khẩu tài khoản."}), 400
         return jsonify({"ok": True, "uid": client.session.uid})
     except LocketError as e:
         return jsonify({"ok": False, "error": str(e)}), 400
     except Exception as e:
-        return jsonify({"ok": False, "error": f"Lỗi đăng nhập: {e}"}), 500
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/auth/register", methods=["POST"])
+def api_register():
+    data = request.get_json(silent=True) or {}
+    contact = (data.get("contact") or "").strip()
+    password = data.get("password") or ""
+    first_name = (data.get("first_name") or "").strip()
+    last_name = (data.get("last_name") or "").strip()
+    if not contact:
+        return jsonify({"ok": False, "error": "Vui lòng nhập email hoặc số điện thoại."}), 400
+    try:
+        if hasattr(client.session, "register"):
+            client.session.register(contact=contact, password=password, first_name=first_name, last_name=last_name)
+            return jsonify({"ok": True, "uid": client.session.uid})
+        if password:
+            client.login(contact, password)
+            return jsonify({"ok": True, "uid": client.session.uid})
+        return jsonify({"ok": False, "error": "Hãy kiểm tra xác thực tài khoản trên Locket hoặc nhập đầy đủ thông tin."}), 400
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+
+
+@app.route("/api/profile/update", methods=["POST"])
+def api_profile_update():
+    if not client.is_authenticated():
+        return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
+    data = request.get_json(silent=True) or {}
+    first_name = (data.get("first_name") or "").strip()
+    last_name = (data.get("last_name") or "").strip()
+    email_val = (data.get("email") or "").strip()
+    birthday_val = (data.get("birthday") or "").strip()
+    gold_badge = data.get("gold_badge")
+    frame_style = data.get("frame_style")
+
+    try:
+        if first_name or last_name:
+            client.user.update_name(first_name=first_name or "Thanh Long", last_name=last_name or "")
+        meta_patch = {}
+        if email_val:
+            meta_patch["email_display"] = email_val
+        if birthday_val:
+            meta_patch["birthday"] = birthday_val
+        if isinstance(gold_badge, bool):
+            meta_patch["gold_badge"] = gold_badge
+        if frame_style:
+            meta_patch["frame_style"] = frame_style
+        saved = save_meta(meta_patch)
+        return jsonify({"ok": True, "meta": saved})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/profile/avatar", methods=["POST"])
+def api_profile_avatar():
+    if not client.is_authenticated():
+        return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
+    file = request.files.get("avatar")
+    if not file or not file.filename:
+        return jsonify({"ok": False, "error": "Chưa chọn ảnh đại diện."}), 400
+    ext = os.path.splitext(file.filename)[1] or ".jpg"
+    fd, tmp_path = tempfile.mkstemp(suffix=ext)
+    os.close(fd)
+    try:
+        file.save(tmp_path)
+        res = client.user.update_avatar(tmp_path)
+        return jsonify({"ok": True, "result": res})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+    finally:
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
 
 
 @app.route("/api/post", methods=["POST"])
 def api_post():
     if not client.is_authenticated():
-        return jsonify({"ok": False, "error": "Vui lòng đăng nhập trước."}), 401
+        return jsonify({"ok": False, "error": "Vui lòng đăng nhập trước khi gửi."}), 401
 
     temp_files = []
     try:
@@ -122,6 +258,7 @@ def api_post():
         text_color = (request.form.get("text_color") or "").strip() or None
         audience = (request.form.get("audience") or "all").strip()
         recipients_raw = (request.form.get("recipients") or "").strip()
+        priority = (request.form.get("priority") or "balanced").strip()
 
         colors = [c.strip() for c in colors_raw.split(",") if c.strip()] or None
         is_private = audience == "private"
@@ -152,26 +289,26 @@ def api_post():
             video_input = tmp_vid
 
         if not image_input and not video_input:
-            return jsonify({"ok": False, "error": "Chụp ảnh hoặc chọn ảnh/video trước khi gửi."}), 400
+            return jsonify({"ok": False, "error": "Chụp ảnh, quay video hoặc chọn từ thư viện trước khi gửi."}), 400
 
-        note_type = preset_id if preset_id else NoteType.STANDARD
-        result = client.moments.post(
+        res = client.moments.post(
             image=image_input,
             video=video_input,
             caption=caption,
-            note_type=note_type,
+            note_type=preset_id,
             icon=icon,
             colors=colors,
             text_color=text_color,
             is_private=is_private,
             recipients=recipients,
-            auto_compress=True
+            auto_compress=True,
+            priority=priority,
         )
-        return jsonify({"ok": True, "moment": result})
+        return jsonify({"ok": True, "moment": res})
     except LocketError as e:
         return jsonify({"ok": False, "error": str(e)}), 400
     except Exception as e:
-        return jsonify({"ok": False, "error": f"Không thể gửi moment: {e}"}), 500
+        return jsonify({"ok": False, "error": str(e)}), 500
     finally:
         for p in temp_files:
             if os.path.exists(p):
@@ -208,12 +345,12 @@ def api_react():
     if not client.is_authenticated():
         return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
     data = request.get_json(silent=True) or {}
-    moment_uid = data.get("moment_uid")
-    reaction = data.get("reaction") or "💛"
-    if not moment_uid:
+    mid = data.get("moment_uid")
+    emo = data.get("reaction") or "💛"
+    if not mid:
         return jsonify({"ok": False, "error": "Thiếu moment_uid."}), 400
     try:
-        res = client.moments.react(moment_uid=moment_uid, reaction=reaction)
+        res = client.moments.react(moment_uid=mid, reaction=emo)
         return jsonify({"ok": True, "result": res})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
@@ -224,13 +361,29 @@ def api_comment():
     if not client.is_authenticated():
         return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
     data = request.get_json(silent=True) or {}
-    moment_uid = data.get("moment_uid")
-    receiver_uid = data.get("receiver_uid")
+    mid = data.get("moment_uid")
+    uid = data.get("receiver_uid")
     text = (data.get("text") or "").strip()
-    if not moment_uid or not receiver_uid or not text:
-        return jsonify({"ok": False, "error": "Thiếu thông tin tin nhắn."}), 400
+    if not mid or not uid or not text:
+        return jsonify({"ok": False, "error": "Thiếu nội dung tin nhắn."}), 400
     try:
-        res = client.moments.comment(moment_uid=moment_uid, receiver_uid=receiver_uid, text=text)
+        res = client.moments.comment(moment_uid=mid, receiver_uid=uid, text=text)
+        return jsonify({"ok": True, "result": res})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/chat/send", methods=["POST"])
+def api_chat_send():
+    if not client.is_authenticated():
+        return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
+    data = request.get_json(silent=True) or {}
+    uid = (data.get("receiver_uid") or "").strip()
+    text = (data.get("text") or "").strip()
+    if not uid or not text:
+        return jsonify({"ok": False, "error": "Thiếu người nhận hoặc tin nhắn."}), 400
+    try:
+        res = client.chat.send_message(receiver_uid=uid, text=text)
         return jsonify({"ok": True, "result": res})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
