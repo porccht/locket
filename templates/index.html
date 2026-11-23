@@ -2,616 +2,950 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Locket Custom Studio — Liquid Glass & RGB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Locket — iOS 26 Liquid Glass</title>
   <style>
     :root {
-      --rgb-speed: 6s;
-      --glass-bg: rgba(20, 24, 38, 0.58);
-      --glass-border: rgba(255, 255, 255, 0.16);
-      --text-main: #f4f7ff;
-      --text-muted: #a6b0cc;
-      --radius-lg: 24px;
-      --radius-md: 16px;
+      --bg-dark: #09090b;
+      --glass: rgba(255, 255, 255, 0.11);
+      --glass-strong: rgba(28, 28, 34, 0.68);
+      --glass-border: rgba(255, 255, 255, 0.22);
+      --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.34), inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+      --locket-gold: #f5b700;
+      --text: #ffffff;
+      --muted: rgba(255, 255, 255, 0.62);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
     }
 
     body {
-      min-height: 100vh;
-      color: var(--text-main);
+      min-height: 100dvh;
       background:
-        radial-gradient(circle at 15% 20%, rgba(255, 65, 108, 0.28), transparent 42%),
-        radial-gradient(circle at 85% 15%, rgba(0, 212, 255, 0.24), transparent 45%),
-        radial-gradient(circle at 50% 90%, rgba(138, 35, 135, 0.32), transparent 50%),
-        #090c16;
-      padding: 20px;
-    }
-
-    .app-wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      display: grid;
-      gap: 20px;
-    }
-
-    .rgb-frame {
-      position: relative;
-      border-radius: var(--radius-lg);
-      padding: 2px;
-      background: linear-gradient(
-        120deg,
-        #ff0055,
-        #ff7b00,
-        #ffee00,
-        #00f5a0,
-        #00d9f5,
-        #8a2be2,
-        #ff0055
-      );
-      background-size: 300% 300%;
-      animation: rgbFlow var(--rgb-speed) linear infinite;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
-    }
-
-    body.no-rgb .rgb-frame {
-      animation: none;
-      background: var(--glass-border);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-    }
-
-    @keyframes rgbFlow {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .glass-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(22px) saturate(160%);
-      -webkit-backdrop-filter: blur(22px) saturate(160%);
-      border-radius: calc(var(--radius-lg) - 2px);
-      padding: 20px;
-    }
-
-    .topbar {
+        radial-gradient(circle at 20% 10%, rgba(245, 183, 0, 0.14), transparent 40%),
+        radial-gradient(circle at 85% 25%, rgba(120, 119, 198, 0.16), transparent 45%),
+        var(--bg-dark);
+      color: var(--text);
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand h1 {
-      font-size: 1.15rem;
-      letter-spacing: 0.2px;
-    }
-
-    .badge-status {
-      font-size: 0.8rem;
-      padding: 5px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      color: var(--text-muted);
-    }
-
-    .badge-status.ok {
-      color: #6ef7c5;
-      border-color: rgba(110, 247, 197, 0.35);
-      background: rgba(110, 247, 197, 0.1);
-    }
-
-    .controls-inline {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .grid-main {
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 820px) {
-      .grid-main {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .field {
-      margin-bottom: 14px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.84rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="email"],
-    select {
-      width: 100%;
-      padding: 11px 14px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: rgba(10, 14, 26, 0.65);
-      color: var(--text-main);
-      outline: none;
-      font-size: 0.92rem;
-    }
-
-    input:focus, select:focus {
-      border-color: rgba(0, 217, 245, 0.7);
-    }
-
-    .row-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .row-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
-
-    .btn {
-      cursor: pointer;
-      border: none;
-      border-radius: var(--radius-md);
-      padding: 12px 16px;
-      font-weight: 600;
-      font-size: 0.92rem;
-      color: #fff;
-      background: linear-gradient(135deg, #ff416c, #8a2387);
-      transition: transform 0.15s ease, opacity 0.2s ease;
-    }
-
-    .btn:hover { transform: translateY(-1px); opacity: 0.95; }
-    .btn:active { transform: scale(0.98); }
-
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      color: var(--text-main);
-      padding: 8px 12px;
-      font-size: 0.82rem;
-    }
-
-    .preview-stage {
-      position: relative;
-      aspect-ratio: 1 / 1;
-      border-radius: 20px;
-      overflow: hidden;
-      background: rgba(8, 11, 20, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      display: flex;
-      align-items: center;
       justify-content: center;
     }
 
-    .preview-stage img,
-    .preview-stage video {
+    /* Hiệu ứng kính lỏng iOS 26 */
+    .liquid-glass {
+      background: var(--glass);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-highlight), 0 12px 32px rgba(0, 0, 0, 0.42);
+    }
+
+    .liquid-pill {
+      background: var(--glass-strong);
+      backdrop-filter: blur(30px) saturate(195%);
+      -webkit-backdrop-filter: blur(30px) saturate(195%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-highlight), 0 14px 36px rgba(0, 0, 0, 0.55);
+    }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px 14px 92px;
+      position: relative;
+    }
+
+    /* Top bar giống ảnh mẫu */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 4px 0 10px;
+      position: sticky;
+      top: 0;
+      z-index: 25;
+    }
+
+    .circle-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.05rem;
+      transition: transform 0.14s ease, background 0.2s ease;
+    }
+
+    .circle-btn:active { transform: scale(0.93); }
+
+    .audience-pill {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .avatar-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 2px solid var(--locket-gold);
+      background: #1c1c22;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .avatar-btn img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .caption-pill-preview {
-      position: absolute;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 88%;
-      padding: 9px 16px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 0.92rem;
-      background: rgba(20, 20, 28, 0.65);
-      backdrop-filter: blur(12px);
-      color: #ffffff;
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-
-    .toast {
-      margin-top: 12px;
-      padding: 11px 14px;
-      border-radius: var(--radius-md);
-      font-size: 0.86rem;
-      display: none;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .toast.show { display: block; }
-    .toast.err { border-color: rgba(255, 85, 115, 0.5); color: #ff94a8; }
-    .toast.ok { border-color: rgba(110, 247, 197, 0.5); color: #7ef9cc; }
-
-    .feed-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 14px;
-      margin-top: 10px;
-    }
-
-    .moment-item {
-      border-radius: 16px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-    }
-
-    .moment-item img {
+    /* Viewfinder vuông bo tròn lớn như ảnh mẫu */
+    .square-stage {
+      position: relative;
       width: 100%;
       aspect-ratio: 1 / 1;
+      border-radius: 42px;
+      overflow: hidden;
+      background: #141418;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 18px 40px rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .square-stage video,
+    .square-stage img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       display: block;
     }
 
-    .moment-meta {
-      padding: 9px 10px;
-      font-size: 0.8rem;
+    .stage-badge-tl {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      color: #fff;
       display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    .stage-badge-br {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    .caption-overlay {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 84%;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      background: rgba(24, 24, 28, 0.72);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 5;
+    }
+
+    /* Hàng điều khiển chụp / thư viện / đổi cam giống ảnh mẫu */
+    .capture-controls {
+      display: flex;
+      align-items: center;
       justify-content: space-between;
+      padding: 20px 26px 8px;
+    }
+
+    .thumb-tile {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .thumb-tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .shutter-outer {
+      width: 82px;
+      height: 82px;
+      border-radius: 999px;
+      border: 4px solid var(--locket-gold);
+      padding: 5px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+
+    .shutter-outer:active { transform: scale(0.94); }
+
+    .shutter-disc {
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      background: #ffffff;
+    }
+
+    .flip-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.45rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Dải preset nhanh & ô caption gọn */
+    .preset-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px 0 6px;
+      scrollbar-width: none;
+    }
+
+    .preset-strip::-webkit-scrollbar { display: none; }
+
+    .preset-chip {
+      flex: 0 0 auto;
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+    }
+
+    .preset-chip.active {
+      border-color: var(--locket-gold);
+      box-shadow: 0 0 0 1px var(--locket-gold);
+    }
+
+    .composer-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      align-items: center;
+    }
+
+    .caption-box {
+      flex: 1;
+      height: 46px;
+      border-radius: 999px;
+      padding: 0 16px;
+      color: #fff;
+      font-size: 0.92rem;
+      outline: none;
+    }
+
+    .send-pill-btn {
+      height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: none;
+      background: var(--locket-gold);
+      color: #111114;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .history-trigger {
+      margin-top: 14px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      align-self: center;
+    }
+
+    /* Feed & Reply giống ảnh mẫu */
+    .feed-card {
+      border-radius: 36px;
+      padding: 10px;
+      margin-bottom: 18px;
+    }
+
+    .feed-meta-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin: 12px 0 10px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .reply-pill-bar {
+      display: flex;
       align-items: center;
       gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
     }
 
-    .react-bar {
-      display: flex;
-      gap: 6px;
-      padding: 0 10px 10px;
-    }
-
-    .react-btn {
-      background: rgba(255, 255, 255, 0.08);
+    .reply-pill-input {
+      flex: 1;
+      background: transparent;
       border: none;
-      border-radius: 10px;
-      padding: 4px 8px;
+      color: #fff;
+      font-size: 0.88rem;
+      padding: 6px 8px;
+      outline: none;
+    }
+
+    .emoji-tap {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      font-size: 1.05rem;
       cursor: pointer;
-      font-size: 0.85rem;
+    }
+
+    /* Memories grid giống ảnh 3 */
+    .memories-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 10px;
+      border-radius: 28px;
+    }
+
+    .mem-cell {
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .mem-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Bottom nav nổi kính lỏng */
+    .bottom-dock {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 28px);
+      max-width: 402px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 30;
+    }
+
+    .dock-pill {
+      flex: 1;
+      height: 54px;
+      border-radius: 999px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dock-item {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .dock-item.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    /* Sheet / Modal kính lỏng cho chọn bạn bè hoặc đăng nhập */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+      padding: 14px;
+    }
+
+    .sheet-backdrop.open { display: flex; }
+
+    .sheet-card {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 30px;
+      padding: 18px;
+      max-height: 78dvh;
+      overflow-y: auto;
+    }
+
+    .friend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+    }
+
+    .toast-banner {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.84rem;
+      display: none;
+    }
+
+    .toast-banner.show { display: block; }
+
+    .view-section { display: none; }
+    .view-section.active { display: flex; flex-direction: column; }
+
+    .field-input {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.45);
+      color: #fff;
+      margin-top: 8px;
+      outline: none;
+    }
+
+    .primary-action {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 999px;
+      border: none;
+      background: var(--locket-gold);
+      color: #111114;
+      font-weight: 700;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="app-wrap">
-    <div class="rgb-frame">
-      <div class="glass-card topbar">
-        <div class="brand">
-          <h1>✨ Locket Studio</h1>
-          <span id="authBadge" class="badge-status">Đang kiểm tra session...</span>
-        </div>
-        <div class="controls-inline">
-          <label style="margin:0;display:flex;align-items:center;gap:6px;cursor:pointer;">
-            <input type="checkbox" id="toggleRgb" checked /> RGB Viền
-          </label>
-          <label style="margin:0;display:flex;align-items:center;gap:6px;">
-            Tốc độ:
-            <input type="range" id="rgbSpeed" min="2" max="15" value="6" />
-          </label>
-          <button class="btn btn-ghost" id="btnLoadFeed">🔄 Feed</button>
-        </div>
+  <div class="phone-frame">
+    <header class="top-bar">
+      <button type="button" class="circle-btn liquid-glass" id="btnQuickFeed" title="Feed">✦</button>
+      <button type="button" class="audience-pill liquid-pill" id="btnAudiencePicker">
+        <span id="audienceText">Everyone</span>
+        <span style="opacity:0.75;">⌄</span>
+      </button>
+      <button type="button" class="avatar-btn" id="btnProfileOrLogin" title="Tài khoản">LC</button>
+    </header>
+
+    <!-- MÀN HÌNH CAMERA (GIỐNG ẢNH 1) -->
+    <section class="view-section active" id="viewCamera">
+      <div class="square-stage" id="cameraStage">
+        <video id="liveCam" autoplay playsinline muted style="display:none;"></video>
+        <img id="shotImg" alt="" style="display:none;" />
+        <video id="shotVid" controls playsinline loop style="display:none;"></video>
+        <button type="button" class="stage-badge-tl liquid-glass" id="btnToggleCam" title="Bật/tắt camera">⚡</button>
+        <span id="stageHint" style="color:var(--muted);font-size:0.9rem;">Chạm nút vàng để chụp hoặc chọn ảnh</span>
+        <div class="caption-overlay" id="liveCaptionPill">Caption của bạn</div>
+        <button type="button" class="stage-badge-br liquid-glass" id="btnResetStage" title="Làm mới khung">⤢</button>
       </div>
+
+      <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;" />
+      <canvas id="captureCanvas" style="display:none;"></canvas>
+
+      <div class="capture-controls">
+        <button type="button" class="thumb-tile" id="btnOpenGallery" title="Thư viện ảnh/video">🖼️</button>
+        <button type="button" class="shutter-outer" id="btnShutter" title="Chụp ảnh">
+          <span class="shutter-disc"></span>
+        </button>
+        <button type="button" class="flip-btn" id="btnFlipFacing" title="Đổi camera">↻</button>
+      </div>
+
+      <div class="preset-strip" id="presetStrip"></div>
+
+      <div class="composer-bar">
+        <input type="text" class="caption-box liquid-pill" id="captionText" placeholder="Viết caption..." />
+        <button type="button" class="send-pill-btn" id="btnPostNow">Gửi</button>
+      </div>
+
+      <div class="toast-banner liquid-glass" id="postStatus"></div>
+
+      <button type="button" class="history-trigger" id="btnGoMemories">History ⌄</button>
+    </section>
+
+    <!-- MÀN HÌNH FEED (GIỐNG ẢNH 2) -->
+    <section class="view-section" id="viewFeed">
+      <div id="feedList"></div>
+    </section>
+
+    <!-- MÀN HÌNH MEMORIES (GIỐNG ẢNH 3) -->
+    <section class="view-section" id="viewMemories">
+      <div class="memories-grid liquid-glass" id="memoriesGrid"></div>
+    </section>
+
+    <!-- THANH ĐIỀU HƯỚNG NỔI Ở ĐÁY -->
+    <nav class="bottom-dock">
+      <div class="dock-pill liquid-pill">
+        <button type="button" class="dock-item" data-view="viewMemories">Memories</button>
+        <button type="button" class="dock-item active" data-view="viewCamera">Camera</button>
+        <button type="button" class="dock-item" data-view="viewFeed">Feed</button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- SHEET CHỌN NGƯỜI GỬI (TỰ TẢI TỪ DANH SÁCH BẠN BÈ) -->
+  <div class="sheet-backdrop" id="audienceSheet">
+    <div class="sheet-card liquid-pill">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <strong>Gửi tới ai?</strong>
+        <button type="button" class="dock-item active" id="btnCloseAudience">Xong</button>
+      </div>
+      <div class="friend-row" onclick="setAudienceMode('all')">
+        <span>🌍 Tất cả bạn bè (Everyone)</span>
+        <span id="checkAll">✓</span>
+      </div>
+      <div class="friend-row" onclick="setAudienceMode('private')">
+        <span>🔒 Chỉ riêng mình tôi</span>
+        <span id="checkPrivate"></span>
+      </div>
+      <div style="margin-top:10px;font-size:0.8rem;color:var(--muted);">Hoặc chọn từng người bạn:</div>
+      <div id="friendsCheckboxList"></div>
     </div>
+  </div>
 
-    <div id="loginBox" class="rgb-frame" style="display:none;">
-      <div class="glass-card">
-        <div class="section-title">🔐 Đăng nhập Locket Session</div>
-        <div class="row-2">
-          <div class="field">
-            <label>Email</label>
-            <input type="email" id="loginEmail" placeholder="email@example.com" />
-          </div>
-          <div class="field">
-            <label>Mật khẩu</label>
-            <input type="password" id="loginPassword" placeholder="••••••••" />
-          </div>
-        </div>
-        <button class="btn" id="btnLogin">Đăng nhập & Lưu Session</button>
-        <div id="loginToast" class="toast"></div>
+  <!-- SHEET ĐĂNG NHẬP -->
+  <div class="sheet-backdrop" id="loginSheet">
+    <div class="sheet-card liquid-pill">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>Đăng nhập Locket</strong>
+        <button type="button" class="dock-item" id="btnCloseLogin">✕</button>
       </div>
-    </div>
-
-    <div class="grid-main">
-      <div class="rgb-frame">
-        <div class="glass-card">
-          <div class="section-title">📸 Tạo & Đăng Moment</div>
-
-          <div class="field">
-            <label>Chọn ảnh từ thư viện</label>
-            <input type="file" id="fileImage" accept="image/*" />
-          </div>
-
-          <div class="field">
-            <label>Hoặc dán link URL ảnh</label>
-            <input type="text" id="imageUrl" placeholder="https://..." />
-          </div>
-
-          <div class="field">
-            <label>Hoặc chọn video (tự động nén HEVC < 6MB)</label>
-            <input type="file" id="fileVideo" accept="video/*" />
-          </div>
-
-          <div class="field">
-            <label>Caption / Nội dung</label>
-            <input type="text" id="captionInput" placeholder="Nhập caption của bạn..." />
-          </div>
-
-          <div class="row-2">
-            <div class="field">
-              <label>Preset NoteType</label>
-              <select id="noteTypeSelect">
-                <option value="standard">standard (Tiêu chuẩn)</option>
-                <option value="custom_4278420056830692855">💭 Đang bận tương tư</option>
-                <option value="custom_4281443912454362723">😤 Dỗi rồi</option>
-                <option value="custom_951140262642706115">🫂 Muốn được ôm</option>
-                <option value="ootd">🕶 OOTD</option>
-                <option value="chilling_time">🌴 Chilling Time!</option>
-                <option value="overthinking_vai_chuong">🤯 Overthinking vai chưởng</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Icon Emoji tự chọn</label>
-              <input type="text" id="iconInput" placeholder="⚡, 💖, 🔥..." />
-            </div>
-          </div>
-
-          <div class="row-3">
-            <div class="field">
-              <label>Màu đầu Gradient</label>
-              <input type="text" id="colorStart" placeholder="#FF416C" />
-            </div>
-            <div class="field">
-              <label>Màu cuối Gradient</label>
-              <input type="text" id="colorEnd" placeholder="#8A2387" />
-            </div>
-            <div class="field">
-              <label>Màu chữ</label>
-              <input type="text" id="textColor" placeholder="#FFFFFF" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>UID người nhận cụ thể (để trống = gửi tất cả bạn bè)</label>
-            <input type="text" id="recipientsInput" placeholder="UID_1, UID_2" />
-          </div>
-
-          <div class="field" style="display:flex;align-items:center;gap:8px;">
-            <input type="checkbox" id="isPrivateCheck" />
-            <label for="isPrivateCheck" style="margin:0;cursor:pointer;">Chế độ riêng tư (chỉ mình bạn xem)</label>
-          </div>
-
-          <button class="btn" id="btnPostMoment" style="width:100%;">🚀 Đăng lên Locket</button>
-          <div id="postToast" class="toast"></div>
-        </div>
-      </div>
-
-      <div class="rgb-frame">
-        <div class="glass-card">
-          <div class="section-title">👁️ Xem Trước Trực Tiếp</div>
-          <div class="preview-stage" id="previewStage">
-            <span style="color:var(--text-muted);font-size:0.9rem;">Chưa chọn ảnh hoặc video</span>
-            <div class="caption-pill-preview" id="captionPreview">✨ Preview Caption</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="rgb-frame">
-      <div class="glass-card">
-        <div class="section-title">🌐 Feed Khoảnh Khắc Gần Nhất</div>
-        <div id="feedList" class="feed-list"></div>
-      </div>
+      <input type="email" class="field-input" id="accEmail" placeholder="Email Locket" />
+      <input type="password" class="field-input" id="accPass" placeholder="Mật khẩu" />
+      <button type="button" class="primary-action" id="btnDoLogin">Đăng nhập</button>
+      <div class="toast-banner liquid-glass" id="loginStatus"></div>
     </div>
   </div>
 
   <script>
-    const toggleRgb = document.getElementById("toggleRgb");
-    const rgbSpeed = document.getElementById("rgbSpeed");
-    toggleRgb.addEventListener("change", () => {
-      document.body.classList.toggle("no-rgb", !toggleRgb.checked);
-    });
-    rgbSpeed.addEventListener("input", () => {
-      document.documentElement.style.setProperty("--rgb-speed", `${rgbSpeed.value}s`);
-    });
+    let state = {
+      authed: false,
+      friends: [],
+      presets: [],
+      selectedPreset: { id: "standard", label: "", icon: "", colors: [], text_color: "#FFFFFF" },
+      audience: "all",
+      selectedFriendUids: new Set(),
+      imageFile: null,
+      videoFile: null,
+      stream: null,
+      facing: "user"
+    };
 
-    function showToast(el, msg, isErr = false) {
-      el.textContent = msg;
-      el.className = `toast show ${isErr ? "err" : "ok"}`;
+    const liveCam = document.getElementById("liveCam");
+    const shotImg = document.getElementById("shotImg");
+    const shotVid = document.getElementById("shotVid");
+    const stageHint = document.getElementById("stageHint");
+    const captureCanvas = document.getElementById("captureCanvas");
+
+    function switchView(viewId) {
+      document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
+      document.getElementById(viewId).classList.add("active");
+      document.querySelectorAll(".dock-item").forEach(b => {
+        b.classList.toggle("active", b.dataset.view === viewId);
+      });
+      if (viewId === "viewFeed") loadFeed();
+      if (viewId === "viewMemories") loadMemories();
     }
 
-    function updatePreviewBadge() {
-      const badge = document.getElementById("captionPreview");
-      const cap = document.getElementById("captionInput").value.trim();
-      const icon = document.getElementById("iconInput").value.trim();
-      const c1 = document.getElementById("colorStart").value.trim();
-      const c2 = document.getElementById("colorEnd").value.trim();
-      const tc = document.getElementById("textColor").value.trim();
+    document.querySelectorAll(".dock-item[data-view]").forEach(btn => {
+      btn.addEventListener("click", () => switchView(btn.dataset.view));
+    });
+    document.getElementById("btnQuickFeed").addEventListener("click", () => switchView("viewFeed"));
+    document.getElementById("btnGoMemories").addEventListener("click", () => switchView("viewMemories"));
 
-      badge.textContent = `${icon ? icon + " " : ""}${cap || "Caption của bạn"}`;
-      badge.style.color = tc || "#ffffff";
-      if (c1 && c2) {
-        badge.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
-      } else if (c1) {
-        badge.style.background = c1;
-      } else {
-        badge.style.background = "rgba(20, 20, 28, 0.72)";
+    function stopCamera() {
+      if (state.stream) {
+        state.stream.getTracks().forEach(t => t.stop());
+        state.stream = null;
+      }
+      liveCam.style.display = "none";
+    }
+
+    async function toggleCamera() {
+      if (state.stream) {
+        stopCamera();
+        if (!state.imageFile && !state.videoFile) stageHint.style.display = "block";
+        return;
+      }
+      shotImg.style.display = "none";
+      shotVid.style.display = "none";
+      stageHint.style.display = "none";
+      try {
+        state.stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: state.facing },
+          audio: false
+        });
+        liveCam.srcObject = state.stream;
+        liveCam.style.display = "block";
+      } catch (e) {
+        stageHint.textContent = "Không mở được camera, hãy bấm biểu tượng thư viện";
+        stageHint.style.display = "block";
       }
     }
 
-    ["captionInput", "iconInput", "colorStart", "colorEnd", "textColor"].forEach(id => {
-      document.getElementById(id).addEventListener("input", updatePreviewBadge);
+    document.getElementById("btnToggleCam").addEventListener("click", toggleCamera);
+    document.getElementById("btnFlipFacing").addEventListener("click", () => {
+      state.facing = state.facing === "user" ? "environment" : "user";
+      stopCamera();
+      toggleCamera();
     });
 
-    const stage = document.getElementById("previewStage");
-    function renderMediaPreview(elNode) {
-      stage.querySelectorAll("img, video").forEach(n => n.remove());
-      const placeholder = stage.querySelector("span");
-      if (placeholder) placeholder.remove();
-      stage.prepend(elNode);
-    }
+    document.getElementById("btnShutter").addEventListener("click", () => {
+      if (!state.stream) {
+        toggleCamera();
+        return;
+      }
+      captureCanvas.width = liveCam.videoWidth || 720;
+      captureCanvas.height = liveCam.videoHeight || 720;
+      const ctx = captureCanvas.getContext("2d");
+      ctx.drawImage(liveCam, 0, 0, captureCanvas.width, captureCanvas.height);
+      captureCanvas.toBlob(blob => {
+        if (!blob) return;
+        state.imageFile = new File([blob], "locket_shot.jpg", { type: "image/jpeg" });
+        state.videoFile = null;
+        stopCamera();
+        shotVid.style.display = "none";
+        shotImg.src = URL.createObjectURL(state.imageFile);
+        shotImg.style.display = "block";
+      }, "image/jpeg", 0.92);
+    });
 
-    document.getElementById("fileImage").addEventListener("change", e => {
+    const fileInput = document.getElementById("fileInput");
+    document.getElementById("btnOpenGallery").addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", e => {
       const f = e.target.files[0];
       if (!f) return;
-      const img = document.createElement("img");
-      img.src = URL.createObjectURL(f);
-      renderMediaPreview(img);
-    });
-
-    document.getElementById("imageUrl").addEventListener("change", e => {
-      const url = e.target.value.trim();
-      if (!url) return;
-      const img = document.createElement("img");
-      img.src = url;
-      renderMediaPreview(img);
-    });
-
-    document.getElementById("fileVideo").addEventListener("change", e => {
-      const f = e.target.files[0];
-      if (!f) return;
-      const vid = document.createElement("video");
-      vid.src = URL.createObjectURL(f);
-      vid.controls = true;
-      vid.autoplay = true;
-      vid.muted = true;
-      renderMediaPreview(vid);
-    });
-
-    async function checkStatus() {
-      const res = await fetch("/api/status");
-      const data = await res.json();
-      const badge = document.getElementById("authBadge");
-      const loginBox = document.getElementById("loginBox");
-      if (data.authenticated) {
-        badge.textContent = `Đã kết nối · UID: ${data.uid}`;
-        badge.classList.add("ok");
-        loginBox.style.display = "none";
-        loadFeed();
+      stopCamera();
+      stageHint.style.display = "none";
+      if (f.type.startsWith("video/")) {
+        state.videoFile = f;
+        state.imageFile = null;
+        shotImg.style.display = "none";
+        shotVid.src = URL.createObjectURL(f);
+        shotVid.style.display = "block";
       } else {
-        badge.textContent = "Chưa có session";
-        badge.classList.remove("ok");
-        loginBox.style.display = "block";
+        state.imageFile = f;
+        state.videoFile = null;
+        shotVid.style.display = "none";
+        shotImg.src = URL.createObjectURL(f);
+        shotImg.style.display = "block";
+      }
+    });
+
+    document.getElementById("btnResetStage").addEventListener("click", () => {
+      stopCamera();
+      state.imageFile = null;
+      state.videoFile = null;
+      fileInput.value = "";
+      shotImg.style.display = "none";
+      shotVid.style.display = "none";
+      stageHint.textContent = "Chạm nút vàng để chụp hoặc chọn ảnh";
+      stageHint.style.display = "block";
+    });
+
+    function updateCaptionPill() {
+      const pill = document.getElementById("liveCaptionPill");
+      const typed = document.getElementById("captionText").value.trim();
+      const pr = state.selectedPreset;
+      const text = typed || pr.label || "Caption";
+      pill.textContent = `${pr.icon ? pr.icon + " " : ""}${text}`;
+      pill.style.color = pr.text_color || "#ffffff";
+      if (Array.isArray(pr.colors) && pr.colors.length >= 2) {
+        pill.style.background = `linear-gradient(135deg, ${pr.colors[0]}, ${pr.colors[1]})`;
+      } else if (Array.isArray(pr.colors) && pr.colors.length === 1) {
+        pill.style.background = pr.colors[0];
+      } else {
+        pill.style.background = "rgba(24, 24, 28, 0.72)";
       }
     }
 
-    document.getElementById("btnLogin").addEventListener("click", async () => {
-      const toast = document.getElementById("loginToast");
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
+    document.getElementById("captionText").addEventListener("input", updateCaptionPill);
+
+    function renderPresets() {
+      const strip = document.getElementById("presetStrip");
+      strip.innerHTML = "";
+      state.presets.forEach((pr, idx) => {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "preset-chip" + (idx === 0 ? " active" : "");
+        chip.textContent = `${pr.icon ? pr.icon + " " : ""}${pr.label}`;
+        if (Array.isArray(pr.colors) && pr.colors.length >= 2) {
+          chip.style.background = `linear-gradient(135deg, ${pr.colors[0]}, ${pr.colors[1]})`;
+        }
+        chip.addEventListener("click", () => {
+          strip.querySelectorAll(".preset-chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          state.selectedPreset = pr;
+          updateCaptionPill();
+        });
+        strip.appendChild(chip);
+      });
+    }
+
+    function updateAudienceLabel() {
+      const lbl = document.getElementById("audienceText");
+      document.getElementById("checkAll").textContent = state.audience === "all" ? "✓" : "";
+      document.getElementById("checkPrivate").textContent = state.audience === "private" ? "✓" : "";
+      if (state.audience === "private") {
+        lbl.textContent = "Only me";
+      } else if (state.audience === "selected" && state.selectedFriendUids.size > 0) {
+        lbl.textContent = `${state.selectedFriendUids.size} người`;
+      } else {
+        lbl.textContent = state.friends.length ? `${state.friends.length} Friends` : "Everyone";
+      }
+    }
+
+    function setAudienceMode(mode) {
+      state.audience = mode;
+      if (mode !== "selected") state.selectedFriendUids.clear();
+      renderFriendsList();
+      updateAudienceLabel();
+    }
+
+    function toggleFriendUid(uid) {
+      state.audience = "selected";
+      if (state.selectedFriendUids.has(uid)) {
+        state.selectedFriendUids.delete(uid);
+      } else {
+        state.selectedFriendUids.add(uid);
+      }
+      if (state.selectedFriendUids.size === 0) state.audience = "all";
+      renderFriendsList();
+      updateAudienceLabel();
+    }
+
+    function renderFriendsList() {
+      const box = document.getElementById("friendsCheckboxList");
+      box.innerHTML = "";
+      state.friends.forEach(fr => {
+        const checked = state.audience === "selected" && state.selectedFriendUids.has(fr.uid);
+        const row = document.createElement("div");
+        row.className = "friend-row";
+        row.innerHTML = `<span>${fr.name}</span><span>${checked ? "✓" : ""}</span>`;
+        row.addEventListener("click", () => toggleFriendUid(fr.uid));
+        box.appendChild(row);
+      });
+    }
+
+    document.getElementById("btnAudiencePicker").addEventListener("click", () => {
+      document.getElementById("audienceSheet").classList.add("open");
+    });
+    document.getElementById("btnCloseAudience").addEventListener("click", () => {
+      document.getElementById("audienceSheet").classList.remove("open");
+    });
+
+    const loginSheet = document.getElementById("loginSheet");
+    document.getElementById("btnProfileOrLogin").addEventListener("click", () => {
+      loginSheet.classList.add("open");
+    });
+    document.getElementById("btnCloseLogin").addEventListener("click", () => {
+      loginSheet.classList.remove("open");
+    });
+
+    document.getElementById("btnDoLogin").addEventListener("click", async () => {
+      const st = document.getElementById("loginStatus");
+      st.textContent = "Đang đăng nhập...";
+      st.className = "toast-banner liquid-glass show";
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({
+          email: document.getElementById("accEmail").value,
+          password: document.getElementById("accPass").value
+        })
       });
       const data = await res.json();
       if (data.ok) {
-        showToast(toast, "Đăng nhập thành công!");
-        checkStatus();
+        st.textContent = "Đăng nhập thành công!";
+        await bootApp();
+        setTimeout(() => loginSheet.classList.remove("open"), 600);
       } else {
-        showToast(toast, data.error || "Đăng nhập thất bại", true);
+        st.textContent = data.error || "Đăng nhập thất bại";
       }
     });
 
-    document.getElementById("btnPostMoment").addEventListener("click", async () => {
-      const toast = document.getElementById("postToast");
-      const btn = document.getElementById("btnPostMoment");
+    document.getElementById("btnPostNow").addEventListener("click", async () => {
+      const st = document.getElementById("postStatus");
+      const btn = document.getElementById("btnPostNow");
       btn.disabled = true;
-      showToast(toast, "Đang tải media và gửi moment lên Locket...");
+      st.textContent = "Đang gửi moment...";
+      st.className = "toast-banner liquid-glass show";
 
       const fd = new FormData();
-      const imgFile = document.getElementById("fileImage").files[0];
-      const vidFile = document.getElementById("fileVideo").files[0];
-      if (imgFile) fd.append("image", imgFile);
-      if (vidFile) fd.append("video", vidFile);
-      fd.append("image_url", document.getElementById("imageUrl").value);
-      fd.append("caption", document.getElementById("captionInput").value);
-      fd.append("note_type", document.getElementById("noteTypeSelect").value);
-      fd.append("icon", document.getElementById("iconInput").value);
-      fd.append("color_start", document.getElementById("colorStart").value);
-      fd.append("color_end", document.getElementById("colorEnd").value);
-      fd.append("text_color", document.getElementById("textColor").value);
-      fd.append("recipients", document.getElementById("recipientsInput").value);
-      fd.append("is_private", document.getElementById("isPrivateCheck").checked ? "true" : "false");
+      if (state.imageFile) fd.append("image", state.imageFile);
+      if (state.videoFile) fd.append("video", state.videoFile);
+      fd.append("caption", document.getElementById("captionText").value);
+      fd.append("preset_id", state.selectedPreset.id || "standard");
+      if (state.selectedPreset.icon) fd.append("icon", state.selectedPreset.icon);
+      if (Array.isArray(state.selectedPreset.colors) && state.selectedPreset.colors.length) {
+        fd.append("colors", state.selectedPreset.colors.join(","));
+      }
+      if (state.selectedPreset.text_color) {
+        fd.append("text_color", state.selectedPreset.text_color);
+      }
+      fd.append("audience", state.audience);
+      if (state.audience === "selected") {
+        fd.append("recipients", Array.from(state.selectedFriendUids).join(","));
+      }
 
       try {
         const res = await fetch("/api/post", { method: "POST", body: fd });
         const data = await res.json();
         if (data.ok) {
-          showToast(toast, `Đăng thành công! Moment ID: ${data.moment?.id || ""}`);
-          loadFeed();
+          st.textContent = "Đã gửi moment lên Locket!";
+          document.getElementById("captionText").value = "";
+          updateCaptionPill();
         } else {
-          showToast(toast, data.error || "Đăng thất bại", true);
+          st.textContent = data.error || "Gửi thất bại";
         }
-      } catch (err) {
-        showToast(toast, `Lỗi mạng: ${err.message}`, true);
+      } catch (e) {
+        st.textContent = "Lỗi kết nối: " + e.message;
       } finally {
         btn.disabled = false;
       }
     });
 
     async function loadFeed() {
-      const listEl = document.getElementById("feedList");
+      const list = document.getElementById("feedList");
+      list.innerHTML = `<div class="liquid-glass" style="padding:18px;border-radius:24px;text-align:center;color:var(--muted);">Đang tải...</div>`;
       const res = await fetch("/api/feed");
       const data = await res.json();
-      if (!data.ok || !Array.isArray(data.items)) return;
+      if (!data.ok || !Array.isArray(data.items) || !data.items.length) {
+        list.innerHTML = `<div class="liquid-glass" style="padding:18px;border-radius:24px;text-align:center;color:var(--muted);">Chưa có moment nào</div>`;
+        return;
+      }
 
-      listEl.innerHTML = "";
-      data.items.slice(0, 12).forEach(m => {
+      list.innerHTML = "";
+      data.items.slice(0, 20).forEach(m => {
         const mid = m.canonical_uid || m.id || "";
+        const author = m.user || "";
         const thumb = m.thumbnail_url || m.image_url || "";
+        const vid = m.video_url || "";
         const cap = m.caption || (m.overlays && m.overlays[0]?.alt_text) || "";
+
         const card = document.createElement("div");
-        card.className = "moment-item";
+        card.className = "feed-card liquid-glass";
         card.innerHTML = `
-          ${thumb ? `<img src="${thumb}" alt="moment" loading="lazy" />` : ""}
-          <div class="moment-meta">
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cap || "Moment"}</span>
+          <div class="square-stage" style="border-radius:28px;">
+            ${vid
+              ? `<video src="${vid}" poster="${thumb}" controls playsinline loop></video>`
+              : (thumb ? `<img src="${thumb}" alt="" loading="lazy" />` : "")}
+            ${cap ? `<div class="caption-overlay">${cap}</div>` : ""}
           </div>
-          <div class="react-bar">
-            ${["❤️", "🔥", "😂", "🥰"].map(emo =>
-              `<button class="react-btn" onclick="sendReact('${mid}', '${emo}')">${emo}</button>`
-            ).join("")}
+          <div class="feed-meta-line">
+            <strong>${author ? author.slice(0, 8) : "Moment"}</strong>
+          </div>
+          <div class="reply-pill-bar liquid-pill">
+            <input type="text" class="reply-pill-input" placeholder="Send message..." maxlength="300" onkeydown="if(event.key==='Enter')sendReply('${mid}','${author}',this)" />
+            <button type="button" class="emoji-tap" onclick="sendEmoji('${mid}','💛')">💛</button>
+            <button type="button" class="emoji-tap" onclick="sendEmoji('${mid}','🔥')">🔥</button>
+            <button type="button" class="emoji-tap" onclick="sendEmoji('${mid}','💖')">💖</button>
           </div>
         `;
-        listEl.appendChild(card);
+        list.appendChild(card);
       });
     }
 
-    async function sendReact(momentUid, reaction) {
+    async function sendEmoji(momentUid, reaction) {
       if (!momentUid) return;
       await fetch("/api/react", {
         method: "POST",
@@ -620,9 +954,59 @@
       });
     }
 
-    document.getElementById("btnLoadFeed").addEventListener("click", loadFeed);
-    updatePreviewBadge();
-    checkStatus();
+    async function sendReply(momentUid, receiverUid, inputEl) {
+      const text = inputEl.value.trim();
+      if (!text || !momentUid || !receiverUid) return;
+      inputEl.value = "";
+      await fetch("/api/comment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moment_uid: momentUid, receiver_uid: receiverUid, text })
+      });
+    }
+
+    async function loadMemories() {
+      const grid = document.getElementById("memoriesGrid");
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:16px;">Đang tải...</div>`;
+      const res = await fetch("/api/memories");
+      const data = await res.json();
+      if (!data.ok || !Array.isArray(data.items) || !data.items.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:16px;">Chưa có kỷ niệm nào</div>`;
+        return;
+      }
+      grid.innerHTML = "";
+      data.items.forEach(item => {
+        if (!item.thumbnail_url) return;
+        const cell = document.createElement("div");
+        cell.className = "mem-cell";
+        cell.innerHTML = `<img src="${item.thumbnail_url}" alt="" loading="lazy" />`;
+        grid.appendChild(cell);
+      });
+    }
+
+    async function bootApp() {
+      const res = await fetch("/api/boot");
+      const data = await res.json();
+      state.authed = !!data.authenticated;
+      state.friends = Array.isArray(data.friends) ? data.friends : [];
+      state.presets = Array.isArray(data.presets) ? data.presets : [];
+
+      const av = document.getElementById("btnProfileOrLogin");
+      if (state.authed) {
+        const pic = data.profile?.profile_pic || data.profile?.avatar_url;
+        av.innerHTML = pic ? `<img src="${pic}" alt="" />` : "✓";
+      } else {
+        av.textContent = "Login";
+        loginSheet.classList.add("open");
+      }
+
+      renderPresets();
+      renderFriendsList();
+      updateAudienceLabel();
+      updateCaptionPill();
+    }
+
+    bootApp();
   </script>
 </body>
 </html>
