@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Locket — iOS 26 Liquid Glass & RGB</title>
+  <title>TLTH LOCKET — iOS 26 Liquid Glass</title>
   <style>
     :root {
       --bg-olive: #43573d;
       --bg-dark: #07080a;
       --glass-26: rgba(255, 255, 255, 0.14);
-      --glass-26-dark: rgba(22, 24, 29, 0.68);
+      --glass-26-dark: rgba(24, 26, 32, 0.72);
       --glass-border: rgba(255, 255, 255, 0.26);
       --glass-shine: inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -1px 0 rgba(255, 255, 255, 0.08);
       --locket-gold: #f7b500;
@@ -33,7 +33,6 @@
       justify-content: center;
     }
 
-    /* Hiệu ứng kính lỏng iOS 26 */
     .ios26-glass {
       background: var(--glass-26);
       backdrop-filter: blur(32px) saturate(210%);
@@ -50,27 +49,43 @@
       box-shadow: var(--glass-shine), 0 16px 40px rgba(0, 0, 0, 0.55);
     }
 
-    @keyframes rgbSpin {
-      0% { filter: hue-rotate(0deg); }
-      100% { filter: hue-rotate(360deg); }
+    /* 3 kiểu khung rõ rệt trên cả ảnh & video */
+    @keyframes rgbBorderShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .frame-rgb-liquid {
-      border: 3px solid transparent;
-      background-image:
-        linear-gradient(#111318, #111318),
-        linear-gradient(135deg, #ff2a85, #ff9f0a, #ffd60a, #30d158, #64d2ff, #bf5af2, #ff2a85);
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
-      animation: rgbSpin 8s linear infinite;
+      padding: 4px;
+      background: linear-gradient(120deg, #ff2a85, #ff9f0a, #ffd60a, #30d158, #64d2ff, #bf5af2, #ff2a85);
+      background-size: 320% 320%;
+      animation: rgbBorderShift 5s linear infinite;
+      box-shadow: 0 0 26px rgba(100, 210, 255, 0.35), 0 16px 36px rgba(0, 0, 0, 0.55);
     }
 
     .frame-gold {
-      border: 3px solid var(--locket-gold);
+      padding: 4px;
+      background: linear-gradient(145deg, #ffe382, #f7b500, #b87a00);
+      box-shadow: 0 0 24px rgba(247, 181, 0, 0.42), 0 14px 30px rgba(0, 0, 0, 0.5);
     }
 
     .frame-thin {
-      border: 1.5px solid rgba(255, 255, 255, 0.24);
+      padding: 1.5px;
+      background: rgba(255, 255, 255, 0.26);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .frame-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 41px;
+      overflow: hidden;
+      background: #0c0e12;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .app-shell {
@@ -90,7 +105,6 @@
       background: var(--bg-dark);
     }
 
-    /* Top bar giống video */
     .topbar {
       display: flex;
       align-items: center;
@@ -145,9 +159,10 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: 999px;
     }
 
-    /* Khung Camera vuông bo tròn lớn */
+    /* Bo tròn cả 4 góc cho mọi khung ảnh và video */
     .cam-wrap {
       padding: 4px 12px 0;
     }
@@ -158,10 +173,6 @@
       aspect-ratio: 1 / 1;
       border-radius: 44px;
       overflow: hidden;
-      background: #0c0e12;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .cam-box video,
@@ -170,6 +181,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      border-radius: 41px;
     }
 
     .flash-btn {
@@ -216,7 +228,6 @@
       font-weight: 700;
     }
 
-    /* Hàng nút điều khiển dưới khung camera */
     .controls-row {
       display: flex;
       align-items: center;
@@ -238,12 +249,6 @@
       font-size: 1.2rem;
     }
 
-    .gallery-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
     .shutter-ring {
       width: 84px;
       height: 84px;
@@ -255,7 +260,6 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      position: relative;
     }
 
     .shutter-ring.recording {
@@ -301,7 +305,6 @@
       cursor: pointer;
     }
 
-    /* Màn hình Soạn & Gửi sau khi chụp/quay/chọn ảnh */
     .compose-view {
       display: none;
       padding: 4px 12px 0;
@@ -420,9 +423,9 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: 999px;
     }
 
-    /* Ngăn Chú thích kiểu video */
     .caption-drawer {
       display: none;
       padding: 14px;
@@ -463,12 +466,11 @@
       background: rgba(255, 255, 255, 0.12);
     }
 
-    /* Feed dọc */
     .feed-section {
       display: none;
       padding: 6px 12px 0;
       flex-direction: column;
-      gap: 18px;
+      gap: 20px;
     }
 
     .feed-section.active {
@@ -488,13 +490,6 @@
       gap: 8px;
       font-size: 0.9rem;
       font-weight: 700;
-    }
-
-    .moment-byline img {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      object-fit: cover;
     }
 
     .gold-heart {
@@ -527,7 +522,6 @@
       padding: 2px 4px;
     }
 
-    /* Kỷ niệm (Memories) */
     .memories-section {
       display: none;
       padding: 8px 12px 0;
@@ -553,7 +547,7 @@
 
     .mem-tile {
       aspect-ratio: 1 / 1;
-      border-radius: 14px;
+      border-radius: 16px;
       overflow: hidden;
       background: rgba(255, 255, 255, 0.08);
     }
@@ -563,9 +557,9 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      border-radius: 16px;
     }
 
-    /* Trò chuyện & Danh bạ (kiểu Messenger/Locket sạch sẽ) */
     .chat-section {
       display: none;
       padding: 8px 14px 0;
@@ -628,7 +622,6 @@
       object-fit: cover;
     }
 
-    /* Trang Hồ sơ & Cài đặt khi click Avatar */
     .profile-drawer {
       position: fixed;
       inset: 0;
@@ -678,6 +671,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: 999px;
     }
 
     .settings-group {
@@ -708,62 +702,170 @@
       padding: 4px 4px 0;
     }
 
-    .about-box {
-      border-radius: 20px;
-      padding: 12px 14px;
-      font-size: 0.86rem;
-      line-height: 1.55;
-      color: #fff;
+    .about-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 2px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.92rem;
     }
 
-    /* Màn hình Đăng nhập / Tạo tài khoản giống 145860 - 145865 */
+    .about-list-item:last-child {
+      border-bottom: none;
+    }
+
+    .author-credit-card {
+      margin-top: 8px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      font-size: 0.86rem;
+      line-height: 1.6;
+      color: #ffd60a;
+    }
+
+    /* Màn hình Đăng nhập giống ảnh mẫu TLTH LOCKET */
     .auth-screen {
       position: fixed;
       inset: 0;
-      background: #050608;
+      background: #060607;
       z-index: 70;
       display: none;
       justify-content: center;
+      overflow-y: auto;
     }
 
     .auth-screen.open {
       display: flex;
     }
 
-    .auth-inner {
+    .auth-card-wrap {
       width: 100%;
-      max-width: 430px;
-      padding: 24px 20px;
+      max-width: 420px;
+      padding: 28px 20px 36px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
     }
 
-    .gold-cta {
+    .locket-heart-logo {
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      background: radial-gradient(circle at 30% 25%, #ffe680, #f7b500 65%, #b87a00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 10px 28px rgba(247, 181, 0, 0.28);
+      margin-bottom: 14px;
+    }
+
+    .auth-title-brand {
+      font-size: 1.65rem;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      color: #f7b500;
+      text-transform: uppercase;
+    }
+
+    .auth-subtitle {
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.52);
+      margin-top: 4px;
+      margin-bottom: 24px;
+    }
+
+    .auth-form-box {
       width: 100%;
-      padding: 15px 20px;
-      border-radius: 999px;
-      border: none;
-      background: var(--locket-gold);
-      color: #111111;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .auth-field-label {
+      font-size: 0.74rem;
       font-weight: 800;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 8px 28px rgba(247, 181, 0, 0.35);
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.65);
+      text-transform: uppercase;
     }
 
-    .input-dark {
+    .auth-field-label span.req {
+      color: #ff453a;
+    }
+
+    .auth-input {
       width: 100%;
-      padding: 14px 16px;
-      border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      background: #1b1c20;
+      height: 48px;
+      padding: 0 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #1a1a1d;
       color: #fff;
-      font-size: 0.98rem;
+      font-size: 0.95rem;
       outline: none;
     }
 
-    /* Bottom dock nổi */
+    .auth-switch-link {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 0.84rem;
+      text-decoration: underline;
+      cursor: pointer;
+      margin: 2px 0 4px;
+    }
+
+    .auth-login-btn {
+      width: 100%;
+      height: 50px;
+      margin-top: 10px;
+      border-radius: 999px;
+      border: none;
+      background: #f5b942;
+      color: #141416;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .auth-install-btn {
+      width: 100%;
+      height: 48px;
+      margin-top: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: #17171a;
+      color: #ffffff;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .auth-lang-btn {
+      margin-top: 16px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .auth-legal-note {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .auth-legal-note strong {
+      color: #f5b942;
+      font-weight: 700;
+    }
+
     .bottom-dock {
       position: fixed;
       bottom: 14px;
@@ -853,11 +955,33 @@
     .sheet-choice.danger {
       color: #ff6961;
     }
+
+    .gold-cta {
+      width: 100%;
+      padding: 13px 18px;
+      border-radius: 999px;
+      border: none;
+      background: var(--locket-gold);
+      color: #111111;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .input-dark {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: #1b1c20;
+      color: #fff;
+      font-size: 0.92rem;
+      outline: none;
+    }
   </style>
 </head>
 <body>
   <div class="app-shell" id="appShell">
-    <!-- TOP BAR -->
     <header class="topbar">
       <button type="button" class="top-btn ios26-glass" id="btnTopRollcall" title="Rollcall">📢</button>
       <button type="button" class="friends-pill ios26-pill" id="btnFriendsPill">
@@ -869,19 +993,20 @@
 
     <div class="banner-notice ios26-pill" id="globalNotice"></div>
 
-    <!-- MÀN HÌNH CAMERA / QUAY VIDEO -->
+    <!-- CAMERA / QUAY VIDEO -->
     <section class="cam-wrap" id="screenCamera">
       <div class="cam-box frame-rgb-liquid" id="camBox">
-        <video id="camStreamEl" autoplay playsinline muted style="display:none;"></video>
-        <img id="camPlaceholderImg" alt="" style="display:none;" />
-        <button type="button" class="flash-btn ios26-glass" id="btnFlashToggle" title="Bật/tắt camera">⚡</button>
-        <span id="camHint" style="color:var(--muted);font-size:0.9rem;padding:0 16px;text-align:center;">
-          Bật camera hoặc chọn ảnh/video từ thư viện
-        </span>
+        <div class="frame-inner">
+          <video id="camStreamEl" autoplay playsinline muted style="display:none;"></video>
+          <button type="button" class="flash-btn ios26-glass" id="btnFlashToggle" title="Bật/tắt camera">⚡</button>
+          <span id="camHint" style="color:var(--muted);font-size:0.9rem;padding:0 16px;text-align:center;">
+            Bật camera hoặc chọn ảnh/video từ thư viện
+          </span>
 
-        <div class="mode-switch-pill ios26-pill">
-          <button type="button" class="mode-icon-btn active" id="modePhotoBtn" title="Chụp ảnh">📷</button>
-          <button type="button" class="mode-icon-btn" id="modeVideoBtn" title="Quay video">🎥</button>
+          <div class="mode-switch-pill ios26-pill">
+            <button type="button" class="mode-icon-btn active" id="modePhotoBtn" title="Chụp ảnh">📷</button>
+            <button type="button" class="mode-icon-btn" id="modeVideoBtn" title="Quay video">🎥</button>
+          </div>
         </div>
       </div>
 
@@ -898,13 +1023,15 @@
       <button type="button" class="history-btn" id="btnHistoryJump">Lịch sử ⌄</button>
     </section>
 
-    <!-- MÀN HÌNH XEM TRƯỚC & GỬI ĐẾN... -->
+    <!-- XEM TRƯỚC & GỬI ĐẾN... -->
     <section class="compose-view" id="screenCompose">
       <div style="text-align:center;font-weight:700;font-size:0.95rem;margin-bottom:2px;">Gửi đến...</div>
       <div class="cam-box frame-rgb-liquid" id="composeBox">
-        <img id="finalPhotoEl" alt="" style="display:none;" />
-        <video id="finalVideoEl" autoplay muted loop playsinline style="display:none;"></video>
-        <div class="caption-pill-overlay" id="composeCaptionPill">Thêm một tin nhắn</div>
+        <div class="frame-inner">
+          <img id="finalPhotoEl" alt="" style="display:none;" />
+          <video id="finalVideoEl" autoplay muted loop playsinline style="display:none;"></video>
+          <div class="caption-pill-overlay" id="composeCaptionPill">Thêm một tin nhắn</div>
+        </div>
       </div>
 
       <div class="caption-drawer ios26-pill" id="captionDrawer">
@@ -921,12 +1048,12 @@
       <div class="recipient-strip" id="recipientStrip"></div>
     </section>
 
-    <!-- MÀN HÌNH FEED (VIDEO TỰ PHÁT + TRẢ LỜI + EMOJI) -->
+    <!-- FEED -->
     <section class="feed-section" id="screenFeed">
       <div id="feedCardsWrap" style="display:flex;flex-direction:column;gap:20px;"></div>
     </section>
 
-    <!-- MÀN HÌNH KỶ NIỆM (MEMORIES) -->
+    <!-- KỶ NIỆM -->
     <section class="memories-section" id="screenMemories">
       <div class="mem-panel ios26-pill">
         <div style="font-weight:800;font-size:1rem;">Kỷ niệm</div>
@@ -941,7 +1068,7 @@
       </div>
     </section>
 
-    <!-- MÀN HÌNH TRÒ CHUYỆN & DANH BẠ BẠN BÈ -->
+    <!-- TRÒ CHUYỆN & DANH BẠ -->
     <section class="chat-section" id="screenChat">
       <input type="text" class="search-box" id="friendSearchInput" placeholder="Tìm bạn bè..." />
       <div class="friends-grid-3" id="friendsAvatarGrid"></div>
@@ -949,7 +1076,6 @@
       <div id="chatThreadsList" style="display:flex;flex-direction:column;gap:8px;"></div>
     </section>
 
-    <!-- BOTTOM DOCK -->
     <nav class="bottom-dock ios26-pill">
       <button type="button" class="dock-btn" data-nav="memories" title="Kỷ niệm">⊞</button>
       <button type="button" class="dock-btn active" data-nav="camera" title="Camera">⌂</button>
@@ -957,7 +1083,7 @@
     </nav>
   </div>
 
-  <!-- TRANG HỒ SƠ & CÀI ĐẶT (KHI BẤM AVATAR) -->
+  <!-- HỒ SƠ & CÀI ĐẶT -->
   <div class="profile-drawer" id="profileDrawer">
     <div class="profile-inner">
       <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -1015,89 +1141,75 @@
         </div>
         <div class="settings-item" style="flex-direction:column;align-items:stretch;">
           <span style="font-size:0.8rem;color:var(--muted);">Edit birthday</span>
-          <input type="text" class="input-dark" id="editBirthdayInput" placeholder="Tháng 5 16th" style="padding:9px 12px;margin-top:6px;" />
+          <input type="text" class="input-dark" id="editBirthdayInput" placeholder="YYYY-MM-DD hoặc Tháng 5 16th" style="padding:9px 12px;margin-top:6px;" />
         </div>
         <button type="button" class="gold-cta" id="btnSaveProfile" style="margin:10px 0 6px;padding:11px;">Lưu thay đổi</button>
       </div>
 
       <div class="group-label">Giới thiệu</div>
-      <div class="about-box ios26-pill">
-        <div>Thanh Long ❤️‍🩹: Facebook.com/htl165</div>
-        <div>Thanh Long ❤️‍🩹: Tiktok.com/@tlongmmo</div>
+      <div class="settings-group ios26-pill">
+        <div class="about-list-item"><span>🎵</span><span>TikTok</span></div>
+        <div class="about-list-item"><span>📷</span><span>Instagram</span></div>
+        <div class="about-list-item"><span>𝕏</span><span>X (Twitter)</span></div>
+        <div class="about-list-item"><span>↗</span><span>Chia sẻ Locket</span></div>
+        <div class="about-list-item"><span>★</span><span>Đánh giá Locket</span></div>
+        <div class="about-list-item"><span>📄</span><span>Điều khoản dịch vụ</span></div>
+        <div class="about-list-item"><span>🔒</span><span>Chính sách quyền riêng tư</span></div>
+        <div class="author-credit-card ios26-glass">
+          <div>Thanh Long ❤️‍🩹: Facebook.com/htl165</div>
+          <div>Thanh Long ❤️‍🩹: Tiktok.com/@tlongmmo</div>
+        </div>
       </div>
 
       <div class="group-label">Tài khoản</div>
       <div class="settings-group ios26-pill">
-        <div class="settings-item" id="btnOpenAuthFromProfile" style="cursor:pointer;color:var(--locket-gold);font-weight:700;">
-          <span>Đăng nhập / Tạo tài khoản mới</span>
+        <div class="settings-item" id="btnAccountAuthAction" style="cursor:pointer;color:#ff6961;font-weight:700;">
+          <span id="accountActionLabel">Đăng xuất</span>
           <span>›</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MÀN HÌNH ĐĂNG NHẬP / TẠO TÀI KHOẢN (EMAIL HOẶC SỐ ĐIỆN THOẠI +84) -->
+  <!-- MÀN HÌNH ĐĂNG NHẬP GIỐNG ẢNH MẪU TLTH LOCKET -->
   <div class="auth-screen" id="authScreen">
-    <div class="auth-inner">
-      <div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-          <button type="button" class="top-btn ios26-glass" id="btnAuthBack">‹</button>
-          <span style="font-size:0.82rem;color:var(--muted);">Locket Studio</span>
-        </div>
-
-        <!-- Bước chào -->
-        <div id="authWelcomeStep" style="text-align:center;margin-top:36px;">
-          <div style="font-size:2rem;font-weight:800;margin-bottom:10px;">💛 Locket</div>
-          <p style="color:var(--muted);font-size:1rem;line-height:1.45;margin-bottom:44px;">
-            Ảnh trực tiếp từ bạn bè,<br />ngay trên màn hình chính
-          </p>
-          <button type="button" class="gold-cta" id="btnStartRegister">Tạo một tài khoản</button>
-          <button type="button" id="btnStartLogin" style="margin-top:18px;background:none;border:none;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;">
-            Đăng nhập
-          </button>
-        </div>
-
-        <!-- Bước nhập Email / Số điện thoại -->
-        <div id="authFormStep" style="display:none;">
-          <h2 id="authHeading" style="font-size:1.55rem;font-weight:800;margin-bottom:16px;">Email của bạn là gì?</h2>
-
-          <div id="emailFieldWrap">
-            <input type="email" class="input-dark" id="authEmailInput" placeholder="Địa chỉ email" />
-          </div>
-
-          <div id="phoneFieldWrap" style="display:none;">
-            <div style="display:flex;align-items:center;gap:8px;background:#1b1c20;border:1px solid rgba(255,255,255,0.16);border-radius:18px;padding:4px 14px;">
-              <span style="font-size:1.1rem;">🇻🇳 +84</span>
-              <input type="tel" id="authPhoneInput" placeholder="Số điện thoại" style="flex:1;background:transparent;border:none;color:#fff;padding:10px 4px;font-size:0.98rem;outline:none;" />
-            </div>
-          </div>
-
-          <button type="button" id="btnSwitchAuthMethod" style="margin-top:14px;padding:8px 14px;border-radius:999px;border:none;background:#23252b;color:#fff;font-size:0.86rem;font-weight:600;cursor:pointer;">
-            Sử dụng số điện thoại
-          </button>
-
-          <div id="authExtraFields" style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
-            <input type="password" class="input-dark" id="authPasswordInput" placeholder="Mật khẩu (nếu dùng email/mật khẩu)" />
-            <div id="registerNameRow" style="display:none;gap:8px;">
-              <input type="text" class="input-dark" id="regFirstName" placeholder="Tên" />
-              <input type="text" class="input-dark" id="regLastName" placeholder="Họ" />
-            </div>
-          </div>
-
-          <div id="authFeedback" style="margin-top:12px;font-size:0.86rem;color:#ffd60a;"></div>
-        </div>
+    <div class="auth-card-wrap">
+      <div style="width:100%;display:flex;justify-content:flex-start;margin-bottom:6px;">
+        <button type="button" class="top-btn ios26-glass" id="btnAuthBack">←</button>
       </div>
 
-      <div id="authBottomAction" style="display:none;">
-        <p style="text-align:center;font-size:0.78rem;color:var(--muted);margin-bottom:12px;">
-          Bằng cách nhấn vào nút Tiếp tục, bạn đồng ý với Điều khoản dịch vụ và Chính sách quyền riêng tư
-        </p>
-        <button type="button" class="gold-cta" id="btnAuthContinue">Tiếp tục →</button>
+      <div class="locket-heart-logo">💛</div>
+      <div class="auth-title-brand">TLTH LOCKET</div>
+      <div class="auth-subtitle">Đăng nhập để chia sẻ khoảnh khắc</div>
+
+      <div class="auth-form-box">
+        <label class="auth-field-label" id="authIdLabel">
+          EMAIL <span class="req">*</span>
+        </label>
+        <input type="text" class="auth-input" id="authIdentifierInput" placeholder="ban@email.com" />
+
+        <button type="button" class="auth-switch-link" id="btnTogglePhoneLogin">
+          📞 Đăng nhập bằng số điện thoại?
+        </button>
+
+        <label class="auth-field-label">MẬT KHẨU</label>
+        <input type="password" class="auth-input" id="authPassInput" placeholder="Nhập mật khẩu" />
+
+        <button type="button" class="auth-login-btn" id="btnSubmitAuth">Đăng nhập</button>
+        <button type="button" class="auth-install-btn" id="btnInstallApp">⬇ Cài ứng dụng vào máy</button>
       </div>
+
+      <button type="button" class="auth-lang-btn" id="btnToggleLang">🌐 Tiếng Việt / English</button>
+
+      <div id="authFeedback" style="margin-top:10px;font-size:0.86rem;color:#ffd60a;text-align:center;"></div>
+
+      <p class="auth-legal-note">
+        Bằng việc đăng nhập, bạn đồng ý với <strong>Điều khoản sử dụng</strong> và <strong>Chính sách quyền riêng tư</strong>.
+      </p>
     </div>
   </div>
 
-  <!-- SHEET CHỈNH ẢNH AVATAR (GIỐNG 145868.JPG) -->
+  <!-- SHEET CHỈNH ẢNH AVATAR -->
   <div class="modal-sheet" id="avatarSheet">
     <div class="modal-box ios26-pill">
       <div style="text-align:center;font-size:0.84rem;color:var(--muted);">
@@ -1129,14 +1241,26 @@
       presets: [],
       profile: {},
       meta: {},
-      authFlow: "login",
-      usePhoneAuth: false,
-      currentFeedItems: []
+      phoneMode: false,
+      deferredPrompt: null
     };
 
     const camStreamEl = document.getElementById("camStreamEl");
-    const camPlaceholderImg = document.getElementById("camPlaceholderImg");
     const camHint = document.getElementById("camHint");
+
+    window.addEventListener("beforeinstallprompt", e => {
+      e.preventDefault();
+      appState.deferredPrompt = e;
+    });
+
+    document.getElementById("btnInstallApp").addEventListener("click", async () => {
+      if (appState.deferredPrompt) {
+        appState.deferredPrompt.prompt();
+        appState.deferredPrompt = null;
+      } else {
+        showNotice("Mở menu trình duyệt → Thêm vào Màn hình chính để cài ứng dụng.");
+      }
+    });
 
     function showNotice(msg) {
       const el = document.getElementById("globalNotice");
@@ -1152,6 +1276,13 @@
         box.classList.remove("frame-rgb-liquid", "frame-gold", "frame-thin");
         box.classList.add(cls);
       });
+      loadFeedIfActive();
+    }
+
+    function loadFeedIfActive() {
+      if (document.getElementById("screenFeed").classList.contains("active")) {
+        loadFeed();
+      }
     }
 
     function setActiveTab(tab) {
@@ -1178,7 +1309,6 @@
     document.getElementById("btnTopRollcall").addEventListener("click", () => setActiveTab("feed"));
     document.getElementById("btnFriendsPill").addEventListener("click", () => setActiveTab("chat"));
 
-    // Chế độ Chụp ảnh / Quay video
     document.getElementById("modePhotoBtn").addEventListener("click", () => {
       appState.mode = "photo";
       document.getElementById("modePhotoBtn").classList.add("active");
@@ -1201,7 +1331,6 @@
 
     async function openCameraStream() {
       stopStream();
-      camPlaceholderImg.style.display = "none";
       camHint.style.display = "none";
       try {
         appState.stream = await navigator.mediaDevices.getUserMedia({
@@ -1256,7 +1385,6 @@
       openCameraStream();
     });
 
-    // Nút chụp ảnh / quay video
     const captureBtn = document.getElementById("btnCaptureAction");
     captureBtn.addEventListener("click", async () => {
       if (!appState.stream) {
@@ -1301,7 +1429,6 @@
       }
     });
 
-    // Chọn ảnh / video từ thư viện
     const galleryInput = document.getElementById("mediaGalleryInput");
     document.getElementById("btnGalleryPick").addEventListener("click", () => galleryInput.click());
     galleryInput.addEventListener("change", e => {
@@ -1311,7 +1438,6 @@
       else openComposeScreen(f, null);
     });
 
-    // Ngăn Chú thích Aa
     document.getElementById("btnToggleAa").addEventListener("click", () => {
       document.getElementById("captionDrawer").classList.toggle("open");
     });
@@ -1424,7 +1550,6 @@
       }
     });
 
-    // Feed: tự phát video khi hiển thị
     async function loadFeed() {
       const wrap = document.getElementById("feedCardsWrap");
       wrap.innerHTML = `<div class="ios26-pill" style="padding:16px;border-radius:24px;text-align:center;">Đang tải khoảnh khắc...</div>`;
@@ -1434,7 +1559,6 @@
         wrap.innerHTML = `<div class="ios26-pill" style="padding:16px;border-radius:24px;text-align:center;color:var(--muted);">Chưa có khoảnh khắc mới</div>`;
         return;
       }
-      appState.currentFeedItems = data.items;
       wrap.innerHTML = "";
       const frameCls = appState.meta.frame_style || "frame-rgb-liquid";
 
@@ -1449,10 +1573,12 @@
         card.className = "moment-card";
         card.innerHTML = `
           <div class="cam-box ${frameCls}">
-            ${vid
-              ? `<video src="${vid}" poster="${thumb}" autoplay muted loop playsinline></video>`
-              : (thumb ? `<img src="${thumb}" alt="" loading="lazy" />` : "")}
-            ${cap ? `<div class="caption-pill-overlay">${cap}</div>` : ""}
+            <div class="frame-inner">
+              ${vid
+                ? `<video src="${vid}" poster="${thumb}" autoplay muted loop playsinline></video>`
+                : (thumb ? `<img src="${thumb}" alt="" loading="lazy" />` : "")}
+              ${cap ? `<div class="caption-pill-overlay">${cap}</div>` : ""}
+            </div>
           </div>
           <div class="moment-byline">
             <span>${author ? author.slice(0, 8) : "Bạn bè"}</span>
@@ -1491,7 +1617,6 @@
       showNotice("Đã gửi tin nhắn");
     }
 
-    // Kỷ niệm (Memories)
     async function loadMemories() {
       const grid = document.getElementById("memoriesGrid");
       const monthGrid = document.getElementById("monthGrid");
@@ -1511,13 +1636,11 @@
         cell.innerHTML = `<img src="${it.thumbnail_url}" alt="" loading="lazy" />`;
         grid.appendChild(cell);
         if (idx < 8) {
-          const mCell = cell.cloneNode(true);
-          monthGrid.appendChild(mCell);
+          monthGrid.appendChild(cell.cloneNode(true));
         }
       });
     }
 
-    // Trò chuyện & Danh bạ bạn bè
     function renderFriendsAndChats(filterText = "") {
       const q = filterText.trim().toLowerCase();
       const filtered = appState.friends.filter(f => !q || f.name.toLowerCase().includes(q));
@@ -1566,7 +1689,6 @@
       renderFriendsAndChats(e.target.value);
     });
 
-    // Hồ sơ & Cài đặt khi bấm Avatar
     const profileDrawer = document.getElementById("profileDrawer");
     document.getElementById("btnOpenProfile").addEventListener("click", () => {
       profileDrawer.classList.add("open");
@@ -1587,12 +1709,14 @@
     });
 
     document.getElementById("btnSaveProfile").addEventListener("click", async () => {
+      const fn = document.getElementById("editFirstName").value.trim();
+      const ln = document.getElementById("editLastName").value.trim();
       const res = await fetch("/api/profile/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          first_name: document.getElementById("editFirstName").value,
-          last_name: document.getElementById("editLastName").value,
+          first_name: fn,
+          last_name: ln,
           email: document.getElementById("editEmailInput").value,
           birthday: document.getElementById("editBirthdayInput").value,
           gold_badge: document.getElementById("toggleGoldBadge").checked,
@@ -1602,12 +1726,14 @@
       const data = await res.json();
       if (data.ok) {
         appState.meta = data.meta;
+        document.getElementById("heroFullName").textContent = `${fn} ${ln}`.trim() || "Thanh Long ❤️‍🩹";
         applyFrameStyle();
         showNotice("Đã lưu thông tin cá nhân");
+      } else {
+        showNotice(data.error || "Lưu thất bại");
       }
     });
 
-    // Sheet chỉnh ảnh Avatar
     const avatarSheet = document.getElementById("avatarSheet");
     const avatarFilePicker = document.getElementById("avatarFilePicker");
     document.getElementById("btnEditAvatarMenu").addEventListener("click", () => avatarSheet.classList.add("open"));
@@ -1623,104 +1749,78 @@
     avatarFilePicker.addEventListener("change", async e => {
       const f = e.target.files[0];
       if (!f) return;
+      showNotice("Đang tải ảnh đại diện mới...");
       const fd = new FormData();
       fd.append("avatar", f);
       const res = await fetch("/api/profile/avatar", { method: "POST", body: fd });
       const data = await res.json();
       avatarSheet.classList.remove("open");
       if (data.ok) {
-        const url = URL.createObjectURL(f);
-        document.getElementById("heroAvatarBox").innerHTML = `<img src="${url}" alt="" />`;
-        document.getElementById("btnOpenProfile").innerHTML = `<img src="${url}" alt="" />`;
-        showNotice("Đã cập nhật ảnh hồ sơ");
+        const finalSrc = data.avatar_url ? `${data.avatar_url}&r=${Date.now()}` : URL.createObjectURL(f);
+        document.getElementById("heroAvatarBox").innerHTML = `<img src="${finalSrc}" alt="" />`;
+        document.getElementById("btnOpenProfile").innerHTML = `<img src="${finalSrc}" alt="" />`;
+        showNotice("Đã cập nhật ảnh đại diện!");
       } else {
         showNotice(data.error || "Đổi ảnh thất bại");
       }
     });
 
-    // Luồng Đăng nhập / Tạo tài khoản (Email hoặc Số điện thoại +84)
+    // Đăng xuất / Mở màn hình đăng nhập
     const authScreen = document.getElementById("authScreen");
-    document.getElementById("btnOpenAuthFromProfile").addEventListener("click", () => {
+    document.getElementById("btnAccountAuthAction").addEventListener("click", async () => {
+      if (appState.authed) {
+        await fetch("/api/auth/logout", { method: "POST" });
+        appState.authed = false;
+        showNotice("Đã đăng xuất");
+      }
       profileDrawer.classList.remove("open");
-      document.getElementById("authWelcomeStep").style.display = "block";
-      document.getElementById("authFormStep").style.display = "none";
-      document.getElementById("authBottomAction").style.display = "none";
       authScreen.classList.add("open");
     });
 
     document.getElementById("btnAuthBack").addEventListener("click", () => {
-      const formVisible = document.getElementById("authFormStep").style.display === "block";
-      if (formVisible) {
-        document.getElementById("authWelcomeStep").style.display = "block";
-        document.getElementById("authFormStep").style.display = "none";
-        document.getElementById("authBottomAction").style.display = "none";
+      authScreen.classList.remove("open");
+    });
+
+    document.getElementById("btnTogglePhoneLogin").addEventListener("click", () => {
+      appState.phoneMode = !appState.phoneMode;
+      const lbl = document.getElementById("authIdLabel");
+      const inp = document.getElementById("authIdentifierInput");
+      const sw = document.getElementById("btnTogglePhoneLogin");
+      if (appState.phoneMode) {
+        lbl.innerHTML = `SỐ ĐIỆN THOẠI <span class="req">*</span>`;
+        inp.placeholder = "+84355536227";
+        sw.textContent = "✉️ Đăng nhập bằng email?";
       } else {
-        authScreen.classList.remove("open");
+        lbl.innerHTML = `EMAIL <span class="req">*</span>`;
+        inp.placeholder = "ban@email.com";
+        sw.textContent = "📞 Đăng nhập bằng số điện thoại?";
       }
     });
 
-    function openAuthForm(flow) {
-      appState.authFlow = flow;
-      document.getElementById("authWelcomeStep").style.display = "none";
-      document.getElementById("authFormStep").style.display = "block";
-      document.getElementById("authBottomAction").style.display = "block";
-      document.getElementById("registerNameRow").style.display = flow === "register" ? "flex" : "none";
-      refreshAuthPrompt();
-    }
-
-    function refreshAuthPrompt() {
-      const heading = document.getElementById("authHeading");
-      const swBtn = document.getElementById("btnSwitchAuthMethod");
-      if (appState.usePhoneAuth) {
-        heading.textContent = "Số điện thoại của bạn là gì?";
-        document.getElementById("emailFieldWrap").style.display = "none";
-        document.getElementById("phoneFieldWrap").style.display = "block";
-        swBtn.textContent = "Sử dụng email thay cho cách này";
-      } else {
-        heading.textContent = "Email của bạn là gì?";
-        document.getElementById("emailFieldWrap").style.display = "block";
-        document.getElementById("phoneFieldWrap").style.display = "none";
-        swBtn.textContent = "Sử dụng số điện thoại";
-      }
-    }
-
-    document.getElementById("btnStartRegister").addEventListener("click", () => openAuthForm("register"));
-    document.getElementById("btnStartLogin").addEventListener("click", () => openAuthForm("login"));
-    document.getElementById("btnSwitchAuthMethod").addEventListener("click", () => {
-      appState.usePhoneAuth = !appState.usePhoneAuth;
-      refreshAuthPrompt();
+    document.getElementById("btnToggleLang").addEventListener("click", () => {
+      showNotice("Đang dùng giao diện Tiếng Việt · TLTH LOCKET");
     });
 
-    document.getElementById("btnAuthContinue").addEventListener("click", async () => {
+    document.getElementById("btnSubmitAuth").addEventListener("click", async () => {
       const fb = document.getElementById("authFeedback");
-      const contact = appState.usePhoneAuth
-        ? ("+84" + document.getElementById("authPhoneInput").value.replace(/^0+/, "").trim())
-        : document.getElementById("authEmailInput").value.trim();
-      const password = document.getElementById("authPasswordInput").value;
-      fb.textContent = "Đang xử lý...";
-
-      const endpoint = appState.authFlow === "register" ? "/api/auth/register" : "/api/auth/login";
-      const payload = appState.authFlow === "register"
-        ? {
-            contact,
-            password,
-            first_name: document.getElementById("regFirstName").value.trim(),
-            last_name: document.getElementById("regLastName").value.trim()
-          }
-        : { identifier: contact, password };
-
-      const res = await fetch(endpoint, {
+      let idVal = document.getElementById("authIdentifierInput").value.trim();
+      const pwVal = document.getElementById("authPassInput").value;
+      if (appState.phoneMode && idVal && !idVal.startsWith("+")) {
+        idVal = "+84" + idVal.replace(/^0+/, "");
+      }
+      fb.textContent = "Đang đăng nhập...";
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ identifier: idVal, password: pwVal })
       });
       const data = await res.json();
       if (data.ok) {
-        fb.textContent = data.message || "Thành công!";
+        fb.textContent = "Đăng nhập thành công!";
         await bootApp();
-        setTimeout(() => authScreen.classList.remove("open"), 500);
+        setTimeout(() => authScreen.classList.remove("open"), 450);
       } else {
-        fb.textContent = data.error || "Chưa hoàn tất";
+        fb.textContent = data.error || "Đăng nhập không thành công";
       }
     });
 
@@ -1737,6 +1837,8 @@
         appState.friends.length ? `${appState.friends.length} Bạn bè` : "Bạn bè";
       document.getElementById("inviteLinkText").textContent =
         (data.invite_link || "https://locket.cam/tlong").replace(/^https?:\/\//, "");
+      document.getElementById("accountActionLabel").textContent =
+        appState.authed ? "Đăng xuất" : "Đăng nhập";
 
       const fn = appState.profile.first_name || "Thanh Long";
       const ln = appState.profile.last_name || "❤️‍🩹";
@@ -1744,7 +1846,7 @@
       document.getElementById("editFirstName").value = fn;
       document.getElementById("editLastName").value = ln;
       document.getElementById("editEmailInput").value = appState.profile.email || "";
-      document.getElementById("editBirthdayInput").value = appState.meta.birthday || "Tháng 5 16th";
+      document.getElementById("editBirthdayInput").value = appState.meta.birthday || appState.profile.birthdate || "Tháng 5 16th";
       document.getElementById("toggleGoldBadge").checked = appState.meta.gold_badge !== false;
       document.getElementById("frameStyleSelect").value = appState.meta.frame_style || "frame-rgb-liquid";
 
@@ -1760,9 +1862,6 @@
       renderFriendsAndChats();
 
       if (!appState.authed) {
-        document.getElementById("authWelcomeStep").style.display = "block";
-        document.getElementById("authFormStep").style.display = "none";
-        document.getElementById("authBottomAction").style.display = "none";
         authScreen.classList.add("open");
       }
     }
