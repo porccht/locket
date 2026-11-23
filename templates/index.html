@@ -162,7 +162,6 @@
       border-radius: 999px;
     }
 
-    /* Khung Camera vuông full chiều ngang bên trong shell */
     .cam-wrap {
       display: none;
       width: 100%;
@@ -234,7 +233,6 @@
       font-weight: 700;
     }
 
-    /* Hàng nút chụp ảnh / thư viện ảnh / chuyển cam trước-sau */
     .Upload_capture-row__qGrI5 {
       width: 100%;
       display: flex;
@@ -541,45 +539,110 @@
       padding: 2px 4px;
     }
 
+    /* Kỷ niệm dạng lịch phân ô giống ảnh mẫu */
     .memories-section {
       display: none;
       width: 100%;
-      padding: 8px 12px 0;
+      padding: 10px 14px 0;
       flex-direction: column;
-      gap: 14px;
+      align-items: center;
+      gap: 18px;
     }
 
     .memories-section.active {
       display: flex;
     }
 
-    .mem-panel {
-      border-radius: 26px;
-      padding: 14px;
+    .calendar-month-card {
+      width: 100%;
+      padding: 8px 4px;
     }
 
-    .mem-grid {
+    .calendar-month-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      padding-left: 4px;
+    }
+
+    .calendar-grid-7 {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 10px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      justify-items: center;
+      align-items: center;
     }
 
-    .mem-tile {
-      aspect-ratio: 1 / 1;
-      border-radius: 16px;
+    .cal-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .cal-slot {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.11);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       overflow: hidden;
-      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
 
-    .mem-tile img {
+    .cal-slot.has-media {
+      border: 2px solid var(--locket-gold);
+    }
+
+    .cal-slot img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
-      border-radius: 16px;
     }
 
+    .streak-summary-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .restore-streak-btn {
+      background: none;
+      border: none;
+      color: var(--locket-gold);
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .minivlog-pill {
+      padding: 12px 22px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .vip-badge {
+      background: var(--locket-gold);
+      color: #111;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    /* Danh sách bạn bè & Trò chuyện */
     .chat-section {
       display: none;
       width: 100%;
@@ -643,6 +706,165 @@
       object-fit: cover;
     }
 
+    /* Cửa sổ Chat chi tiết có thu hồi, gửi ảnh, thả icon */
+    .thread-screen {
+      position: fixed;
+      inset: 0;
+      background: #060709;
+      z-index: 65;
+      display: none;
+      justify-content: center;
+    }
+
+    .thread-screen.open {
+      display: flex;
+    }
+
+    .thread-shell {
+      width: 100%;
+      max-width: 430px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px 14px 16px;
+    }
+
+    .thread-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .thread-header img {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      object-fit: cover;
+    }
+
+    .thread-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .Chat_msg-row__kdAx7 {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .Chat_msg-row__kdAx7.Chat_mine__qOfuk {
+      justify-content: flex-end;
+    }
+
+    .Chat_msg__AU6sH {
+      max-width: 74%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .Chat_bubble__jpT2a {
+      padding: 10px 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      font-size: 0.92rem;
+      word-break: break-word;
+    }
+
+    .Chat_msg-row__kdAx7.Chat_mine__qOfuk .Chat_bubble__jpT2a {
+      background: #f5b942;
+      color: #111114;
+      font-weight: 600;
+    }
+
+    .Chat_bubble__jpT2a img {
+      max-width: 190px;
+      border-radius: 14px;
+      display: block;
+    }
+
+    .Chat_msg-tools__lLPLV {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .Chat_tool__ohcz7 {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.85);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .msg-reactions-tag {
+      font-size: 0.78rem;
+      align-self: flex-end;
+    }
+
+    .thread-composer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    .thread-img-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--locket-gold);
+      font-size: 1.3rem;
+      cursor: pointer;
+    }
+
+    .thread-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      height: 44px;
+      border-radius: 999px;
+    }
+
+    .thread-input-wrap input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 0.92rem;
+      outline: none;
+    }
+
+    .thread-send-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: none;
+      background: var(--locket-gold);
+      color: #111;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    /* Hồ sơ & Cài đặt */
     .profile-drawer {
       position: fixed;
       inset: 0;
@@ -750,7 +972,6 @@
       text-decoration: none;
     }
 
-    /* Màn hình Đăng nhập gọn sạch đúng yêu cầu */
     .auth-screen {
       position: fixed;
       inset: 0;
@@ -994,7 +1215,7 @@
 <body>
   <div class="app-shell" id="appShell">
     <header class="topbar">
-      <button type="button" class="top-btn ios26-glass" id="btnTopRollcall" title="Rollcall">📢</button>
+      <button type="button" class="top-btn ios26-glass" id="btnTopRollcall" title="Lịch sử / Feed">📢</button>
       <button type="button" class="friends-pill ios26-pill" id="btnFriendsPill">
         <span>👥</span>
         <span id="friendsCountText">Bạn bè</span>
@@ -1070,27 +1291,33 @@
       <div class="recipient-strip" id="recipientStrip"></div>
     </section>
 
-    <!-- FEED -->
+    <!-- LỊCH SỬ / FEED KHOẢNH KHẮC CỦA BẠN & BẠN BÈ -->
     <section class="feed-section" id="screenFeed">
       <div id="feedCardsWrap" style="display:flex;flex-direction:column;gap:20px;"></div>
     </section>
 
-    <!-- KỶ NIỆM -->
+    <!-- KỶ NIỆM DẠNG LỊCH PHÂN Ô GIỐNG ẢNH MẪU -->
     <section class="memories-section" id="screenMemories">
-      <div class="mem-panel ios26-pill">
-        <div style="font-weight:800;font-size:1rem;">Kỷ niệm</div>
-        <div class="mem-grid" id="memoriesGrid"></div>
+      <div class="calendar-month-card">
+        <div class="calendar-month-title" id="calendarMonthTitle">Tháng 11 2026</div>
+        <div class="calendar-grid-7" id="calendarSlotsGrid"></div>
       </div>
-      <div class="mem-panel ios26-pill">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>Tháng này</strong>
-          <span style="font-size:0.82rem;color:var(--muted);">💛 Kỷ niệm · 🔥 Chuỗi</span>
-        </div>
-        <div class="mem-grid" id="monthGrid"></div>
+
+      <div class="streak-summary-row">
+        <span>💛 <span id="locketTotalCount">0</span> Lockets</span>
+        <span style="opacity:0.4;">|</span>
+        <span>🔥 <span id="streakDayCount">1</span> ngày chuỗi</span>
       </div>
+
+      <button type="button" class="restore-streak-btn" id="btnRestoreStreak">Khôi phục chuỗi</button>
+
+      <button type="button" class="minivlog-pill ios26-pill" id="btnMiniVlog">
+        <span>🎞️ Mini vlog hôm nay</span>
+        <span class="vip-badge">VIP</span>
+      </button>
     </section>
 
-    <!-- TRÒ CHUYỆN & DANH BẠ -->
+    <!-- DANH BẠ BẠN BÈ & TRÒ CHUYỆN -->
     <section class="chat-section" id="screenChat">
       <input type="text" class="search-box" id="friendSearchInput" placeholder="Tìm bạn bè..." />
       <div class="friends-grid-3" id="friendsAvatarGrid"></div>
@@ -1103,6 +1330,28 @@
       <button type="button" class="dock-btn active" data-nav="camera" title="Camera">⌂</button>
       <button type="button" class="dock-btn" data-nav="chat" title="Trò chuyện">💬</button>
     </nav>
+  </div>
+
+  <!-- CỬA SỔ CHAT CHI TIẾT (GỬI TIN NHẮN, GỬI ẢNH, THẢ ICON, THU HỒI) -->
+  <div class="thread-screen" id="threadScreen">
+    <div class="thread-shell">
+      <div class="thread-header">
+        <button type="button" class="top-btn ios26-glass" id="btnCloseThread">←</button>
+        <img id="threadPartnerAvatar" src="" onerror="this.style.background='#24262e'" alt="" />
+        <strong id="threadPartnerName">Bạn bè</strong>
+      </div>
+
+      <div class="thread-messages" id="threadMessagesBox"></div>
+
+      <input type="file" id="chatImageInput" accept="image/*" style="display:none;" />
+      <div class="thread-composer">
+        <button type="button" class="thread-img-btn" id="btnPickChatImage" title="Gửi ảnh">🖼️</button>
+        <div class="thread-input-wrap ios26-pill">
+          <input type="text" id="threadTextInput" placeholder="Gửi tin nhắn..." maxlength="500" onkeydown="if(event.key==='Enter')sendChatText()" />
+        </div>
+        <button type="button" class="thread-send-circle" id="btnSendChatText" title="Gửi">↑</button>
+      </div>
+    </div>
   </div>
 
   <!-- HỒ SƠ & CÀI ĐẶT -->
@@ -1274,6 +1523,7 @@
   <script>
     const appState = {
       authed: false,
+      myUid: "",
       mode: "photo",
       stream: null,
       facing: "user",
@@ -1289,7 +1539,10 @@
       presets: [],
       profile: {},
       meta: {},
-      phoneMode: false
+      phoneMode: false,
+      activeChatPartner: null,
+      activeConvId: "",
+      touchStartY: 0
     };
 
     const camStreamEl = document.getElementById("camStreamEl");
@@ -1355,16 +1608,30 @@
       });
 
       if (tab === "feed") loadFeed();
-      if (tab === "memories") loadMemories();
+      if (tab === "memories") loadMemoriesCalendar();
       if (tab === "chat") renderFriendsAndChats();
     }
 
     document.querySelectorAll(".dock-btn").forEach(btn => {
       btn.addEventListener("click", () => setActiveTab(btn.dataset.nav));
     });
-    document.getElementById("btnHistoryJump").addEventListener("click", () => setActiveTab("memories"));
+
+    // Nhấn Lịch sử -> mở danh sách moment của tôi & bạn bè đã đăng
+    document.getElementById("btnHistoryJump").addEventListener("click", () => setActiveTab("feed"));
     document.getElementById("btnTopRollcall").addEventListener("click", () => setActiveTab("feed"));
     document.getElementById("btnFriendsPill").addEventListener("click", () => setActiveTab("chat"));
+
+    // Vuốt lên ở màn Camera để mở danh sách moment đã đăng
+    document.getElementById("screenCamera").addEventListener("touchstart", e => {
+      appState.touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.getElementById("screenCamera").addEventListener("touchend", e => {
+      const endY = e.changedTouches[0].clientY;
+      if (appState.touchStartY - endY > 90) {
+        setActiveTab("feed");
+      }
+    }, { passive: true });
 
     document.getElementById("modePhotoBtn").addEventListener("click", () => {
       appState.mode = "photo";
@@ -1619,7 +1886,7 @@
       const res = await fetch("/api/feed");
       const data = await res.json();
       if (!data.ok || !Array.isArray(data.items) || !data.items.length) {
-        wrap.innerHTML = `<div class="ios26-pill" style="padding:16px;border-radius:24px;text-align:center;color:var(--muted);">Chưa có khoảnh khắc mới</div>`;
+        wrap.innerHTML = `<div class="ios26-pill" style="padding:16px;border-radius:24px;text-align:center;color:var(--muted);">Chưa có khoảnh khắc nào</div>`;
         return;
       }
       wrap.innerHTML = "";
@@ -1680,30 +1947,54 @@
       showNotice("Đã gửi tin nhắn");
     }
 
-    async function loadMemories() {
-      const grid = document.getElementById("memoriesGrid");
-      const monthGrid = document.getElementById("monthGrid");
-      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);">Đang tải...</div>`;
-      monthGrid.innerHTML = "";
-      const res = await fetch("/api/memories");
-      const data = await res.json();
-      if (!data.ok || !Array.isArray(data.items) || !data.items.length) {
-        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);">Chưa có kỷ niệm nào</div>`;
-        return;
-      }
+    // Lịch Kỷ niệm phân ô theo tháng giống ảnh mẫu
+    async function loadMemoriesCalendar() {
+      const grid = document.getElementById("calendarSlotsGrid");
       grid.innerHTML = "";
-      data.items.forEach((it, idx) => {
-        if (!it.thumbnail_url) return;
-        const cell = document.createElement("div");
-        cell.className = "mem-tile";
-        cell.innerHTML = `<img src="${it.thumbnail_url}" alt="" loading="lazy" />`;
-        grid.appendChild(cell);
-        if (idx < 8) {
-          monthGrid.appendChild(cell.cloneNode(true));
+      const now = new Date();
+      document.getElementById("calendarMonthTitle").textContent = `Tháng ${now.getMonth() + 1} ${now.getFullYear()}`;
+
+      let items = [];
+      try {
+        const res = await fetch("/api/memories");
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.items)) items = data.items;
+      } catch (e) {
+        items = [];
+      }
+
+      document.getElementById("locketTotalCount").textContent = items.length;
+      document.getElementById("streakDayCount").textContent = Math.max(1, items.length);
+
+      // Tạo 28 ô lịch theo hàng chấm + ô vuông như ảnh mẫu
+      for (let i = 0; i < 28; i++) {
+        if (i < 14 && i !== 9) {
+          const dot = document.createElement("div");
+          dot.className = "cal-dot";
+          grid.appendChild(dot);
+        } else {
+          const mediaIdx = i === 9 ? 0 : (i - 14);
+          const item = items[mediaIdx];
+          const slot = document.createElement("div");
+          slot.className = "cal-slot" + (item && item.thumbnail_url ? " has-media" : "");
+          if (item && item.thumbnail_url) {
+            slot.innerHTML = `<img src="${item.thumbnail_url}" alt="" loading="lazy" />`;
+            slot.addEventListener("click", () => setActiveTab("feed"));
+          }
+          grid.appendChild(slot);
         }
-      });
+      }
     }
 
+    document.getElementById("btnRestoreStreak").addEventListener("click", () => {
+      showNotice("Đã đồng bộ chuỗi ngày khoảnh khắc");
+    });
+
+    document.getElementById("btnMiniVlog").addEventListener("click", () => {
+      setActiveTab("feed");
+    });
+
+    // Danh sách bạn bè & mở khung chat chi tiết
     function renderFriendsAndChats(filterText = "") {
       const q = filterText.trim().toLowerCase();
       const filtered = appState.friends.filter(f => !q || f.name.toLowerCase().includes(q));
@@ -1719,7 +2010,7 @@
           <img src="${fr.avatar || ""}" onerror="this.style.background='#2a2d36'" alt="" />
           <span>${fr.name.split(" ")[0]}</span>
         `;
-        tile.addEventListener("click", () => quickMessageFriend(fr));
+        tile.addEventListener("click", () => openChatThread(fr));
         fGrid.appendChild(tile);
 
         const row = document.createElement("div");
@@ -1728,30 +2019,157 @@
           <img src="${fr.avatar || ""}" onerror="this.style.background='#2a2d36'" alt="" />
           <div style="flex:1;min-width:0;">
             <div style="font-weight:700;font-size:0.92rem;">${fr.name}</div>
-            <div style="font-size:0.8rem;color:var(--muted);">Chạm để gửi tin nhắn</div>
+            <div style="font-size:0.8rem;color:var(--muted);">Chạm để mở trò chuyện</div>
           </div>
         `;
-        row.addEventListener("click", () => quickMessageFriend(fr));
+        row.addEventListener("click", () => openChatThread(fr));
         cList.appendChild(row);
       });
-    }
-
-    async function quickMessageFriend(friend) {
-      const text = prompt(`Gửi tin nhắn tới ${friend.name}:`);
-      if (!text || !text.trim()) return;
-      const res = await fetch("/api/chat/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receiver_uid: friend.uid, text: text.trim() })
-      });
-      const data = await res.json();
-      showNotice(data.ok ? `Đã gửi tới ${friend.name}` : (data.error || "Gửi lỗi"));
     }
 
     document.getElementById("friendSearchInput").addEventListener("input", e => {
       renderFriendsAndChats(e.target.value);
     });
 
+    const threadScreen = document.getElementById("threadScreen");
+    document.getElementById("btnCloseThread").addEventListener("click", () => {
+      threadScreen.classList.remove("open");
+      appState.activeChatPartner = null;
+    });
+
+    async function openChatThread(friend) {
+      appState.activeChatPartner = friend;
+      document.getElementById("threadPartnerName").textContent = friend.name;
+      const av = document.getElementById("threadPartnerAvatar");
+      av.src = friend.avatar || "";
+      threadScreen.classList.add("open");
+      await refreshChatMessages();
+    }
+
+    async function refreshChatMessages() {
+      if (!appState.activeChatPartner) return;
+      const box = document.getElementById("threadMessagesBox");
+      box.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:0.84rem;">Đang tải tin nhắn...</div>`;
+      const res = await fetch(`/api/chat/messages?other_user_id=${encodeURIComponent(appState.activeChatPartner.uid)}`);
+      const data = await res.json();
+      if (!data.ok) {
+        box.innerHTML = `<div style="text-align:center;color:var(--muted);">${data.error || "Không tải được tin nhắn"}</div>`;
+        return;
+      }
+      appState.activeConvId = data.conversation_id || "";
+      const msgs = Array.isArray(data.messages) ? data.messages : [];
+      box.innerHTML = "";
+
+      if (!msgs.length) {
+        box.innerHTML = `<div style="text-align:center;color:var(--muted);margin-top:40%;">Bắt đầu trò chuyện với ${appState.activeChatPartner.name}</div>`;
+        return;
+      }
+
+      msgs.forEach(m => {
+        const isMine = m.sender_id === data.my_uid;
+        const msgId = m.id || m.message_id || "";
+        const txt = m.text || "";
+        const imgUrl = m.image_url || m.thumbnail_url || "";
+        const rx = m.reaction || "";
+
+        const row = document.createElement("div");
+        row.className = `Chat_msg-row__kdAx7 ${isMine ? "Chat_mine__qOfuk Chat_active__cBGxL" : ""}`;
+        row.innerHTML = `
+          <div class="Chat_msg__AU6sH ${isMine ? "Chat_mine__qOfuk" : ""}">
+            <div class="Chat_bubble__jpT2a">
+              ${imgUrl ? `<img src="${imgUrl}" alt="" />` : ""}
+              ${txt ? `<div>${txt}</div>` : ""}
+            </div>
+            ${rx ? `<div class="msg-reactions-tag">${rx}</div>` : ""}
+          </div>
+          <div class="Chat_msg-tools__lLPLV">
+            ${isMine && msgId ? `
+              <button type="button" class="Chat_tool__ohcz7" aria-label="Tuỳ chọn tin nhắn" onclick="revokeMessage('${msgId}')" title="Thu hồi tin nhắn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="12" cy="5" r="2"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                  <circle cx="12" cy="19" r="2"></circle>
+                </svg>
+              </button>
+            ` : ""}
+            ${msgId ? `
+              <button type="button" class="Chat_tool__ohcz7" aria-label="Thả cảm xúc" onclick="reactMessage('${msgId}', '❤️')" title="Thả cảm xúc">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"></circle>
+                  <path d="M8.5 14a4.5 4.5 0 0 0 7 0"></path>
+                  <circle cx="9" cy="9.5" r=".9" fill="currentColor"></circle>
+                  <circle cx="15" cy="9.5" r=".9" fill="currentColor"></circle>
+                </svg>
+              </button>
+            ` : ""}
+          </div>
+        `;
+        box.appendChild(row);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendChatText() {
+      if (!appState.activeChatPartner) return;
+      const inp = document.getElementById("threadTextInput");
+      const text = inp.value.trim();
+      if (!text) return;
+      inp.value = "";
+      const fd = new FormData();
+      fd.append("receiver_uid", appState.activeChatPartner.uid);
+      fd.append("text", text);
+      await fetch("/api/chat/send", { method: "POST", body: fd });
+      await refreshChatMessages();
+    }
+
+    document.getElementById("btnSendChatText").addEventListener("click", sendChatText);
+
+    const chatImageInput = document.getElementById("chatImageInput");
+    document.getElementById("btnPickChatImage").addEventListener("click", () => chatImageInput.click());
+    chatImageInput.addEventListener("change", async e => {
+      const f = e.target.files[0];
+      if (!f || !appState.activeChatPartner) return;
+      showNotice("Đang gửi ảnh vào đoạn chat...");
+      const fd = new FormData();
+      fd.append("receiver_uid", appState.activeChatPartner.uid);
+      fd.append("image", f);
+      fd.append("text", document.getElementById("threadTextInput").value.trim());
+      document.getElementById("threadTextInput").value = "";
+      await fetch("/api/chat/send", { method: "POST", body: fd });
+      chatImageInput.value = "";
+      await refreshChatMessages();
+    });
+
+    async function reactMessage(messageId, emoji) {
+      await fetch("/api/chat/reaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: appState.activeConvId,
+          other_user_id: appState.activeChatPartner?.uid || "",
+          message_id: messageId,
+          emoji
+        })
+      });
+      showNotice(`Đã thả ${emoji} vào tin nhắn`);
+      await refreshChatMessages();
+    }
+
+    async function revokeMessage(messageId) {
+      await fetch("/api/chat/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversation_id: appState.activeConvId,
+          other_user_id: appState.activeChatPartner?.uid || "",
+          message_id: messageId
+        })
+      });
+      showNotice("Đã thu hồi tin nhắn");
+      await refreshChatMessages();
+    }
+
+    // Hồ sơ & Cài đặt
     const profileDrawer = document.getElementById("profileDrawer");
     document.getElementById("btnOpenProfile").addEventListener("click", () => {
       profileDrawer.classList.add("open");
@@ -1886,6 +2304,7 @@
       const res = await fetch("/api/boot");
       const data = await res.json();
       appState.authed = !!data.authenticated;
+      appState.myUid = data.uid || "";
       appState.friends = Array.isArray(data.friends) ? data.friends : [];
       appState.presets = Array.isArray(data.presets) ? data.presets : [];
       appState.profile = data.profile || {};
@@ -1912,6 +2331,9 @@
       if (avUrl) {
         document.getElementById("btnOpenProfile").innerHTML = `<img src="${avUrl}" alt="" />`;
         document.getElementById("heroAvatarBox").innerHTML = `<img src="${avUrl}" alt="" />`;
+      } else {
+        document.getElementById("btnOpenProfile").innerHTML = "TL";
+        document.getElementById("heroAvatarBox").innerHTML = "TL";
       }
 
       applyFrameStyle();
