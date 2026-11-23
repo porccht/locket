@@ -21,10 +21,6 @@ DEFAULT_META = {
     "email_display": "",
     "gold_badge": True,
     "frame_style": "frame-rgb-liquid",
-    "about_lines": [
-        "Thanh Long ❤️‍🩹: Facebook.com/htl165",
-        "Thanh Long ❤️‍🩹: Tiktok.com/@tlongmmo",
-    ],
 }
 
 QUICK_CAPTIONS = [
@@ -50,28 +46,39 @@ def with_cache_bust(url: str) -> str:
     return f"{url}{sep}cb={int(time.time())}"
 
 
-def load_meta() -> dict:
-    data = dict(DEFAULT_META)
+def load_all_meta() -> dict:
     if os.path.exists(CUSTOM_META_FILE):
         try:
             with open(CUSTOM_META_FILE, "r", encoding="utf-8") as f:
-                saved = json.load(f)
-                if isinstance(saved, dict):
-                    data.update(saved)
+                data = json.load(f)
+                if isinstance(data, dict):
+                    return data
         except Exception:
             pass
-    return data
+    return {}
 
 
-def save_meta(new_data: dict) -> dict:
-    current = load_meta()
-    current.update(new_data)
+def get_user_meta(uid: str) -> dict:
+    all_m = load_all_meta()
+    key = uid or "default"
+    entry = all_m.get(key) if isinstance(all_m.get(key), dict) else {}
+    merged = dict(DEFAULT_META)
+    merged.update(entry)
+    return merged
+
+
+def save_user_meta(uid: str, patch: dict) -> dict:
+    all_m = load_all_meta()
+    key = uid or "default"
+    cur = get_user_meta(key)
+    cur.update(patch)
+    all_m[key] = cur
     try:
         with open(CUSTOM_META_FILE, "w", encoding="utf-8") as f:
-            json.dump(current, f, ensure_ascii=False, indent=2)
+            json.dump(all_m, f, ensure_ascii=False, indent=2)
     except Exception:
         pass
-    return current
+    return cur
 
 
 def load_presets() -> list:
@@ -110,9 +117,11 @@ def index():
 @app.route("/api/boot", methods=["GET"])
 def api_boot():
     authed = client.is_authenticated()
+    uid = client.session.uid if authed else ""
+    meta = get_user_meta(uid)
     profile = {}
     friends = []
-    meta = load_meta()
+    conversations = []
 
     if authed:
         try:
@@ -125,17 +134,20 @@ def api_boot():
             raw_f = client.friends.get_all_friends() or []
             for item in raw_f:
                 if isinstance(item, dict):
-                    uid = item.get("uid") or item.get("id") or ""
+                    f_uid = item.get("uid") or item.get("id") or ""
                     fn = item.get("first_name") or item.get("firstName") or ""
                     ln = item.get("last_name") or item.get("lastName") or ""
-                    full = f"{fn} {ln}".strip() or item.get("username") or uid[:8]
+                    full = f"{fn} {ln}".strip() or item.get("username") or f_uid[:8]
                     av = item.get("profile_picture_url") or item.get("profile_pic") or item.get("avatar_url") or item.get("photo_url") or ""
-                    if uid:
-                        friends.append({"uid": uid, "name": full, "avatar": av})
+                    if f_uid:
+                        friends.append({"uid": f_uid, "name": full, "avatar": av})
         except Exception:
             friends = []
+        try:
+            conversations = client.chat.get_conversations() or []
+        except Exception:
+            conversations = []
 
-    uid = client.session.uid if authed else ""
     username = profile.get("username") or (uid[:10] if uid else "tlong")
     raw_avatar = profile.get("profile_picture_url") or profile.get("profile_pic") or profile.get("avatar_url") or ""
     return jsonify({
@@ -152,6 +164,7 @@ def api_boot():
         },
         "meta": meta,
         "friends": friends,
+        "conversations": conversations,
         "presets": load_presets(),
     })
 
@@ -191,6 +204,7 @@ def api_logout():
 def api_profile_update():
     if not client.is_authenticated():
         return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
+    uid = client.session.uid
     data = request.get_json(silent=True) or {}
     first_name = (data.get("first_name") or "").strip()
     last_name = (data.get("last_name") or "").strip()
@@ -207,16 +221,16 @@ def api_profile_update():
                 client.user.update_birthdate(birthday_val)
             except Exception:
                 pass
-        meta_patch = {}
+        patch = {}
         if email_val:
-            meta_patch["email_display"] = email_val
+            patch["email_display"] = email_val
         if birthday_val:
-            meta_patch["birthday"] = birthday_val
+            patch["birthday"] = birthday_val
         if isinstance(gold_badge, bool):
-            meta_patch["gold_badge"] = gold_badge
+            patch["gold_badge"] = gold_badge
         if frame_style:
-            meta_patch["frame_style"] = frame_style
-        saved = save_meta(meta_patch)
+            patch["frame_style"] = frame_style
+        saved = save_user_meta(uid, patch)
         return jsonify({"ok": True, "meta": saved})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
@@ -235,15 +249,15 @@ def api_profile_avatar():
     try:
         file.save(tmp_path)
         uploaded_url = client.user.update_avatar(tmp_path)
-        fresh_profile = {}
+        fresh = {}
         try:
-            fresh_profile = client.user.get_profile() or {}
+            fresh = client.user.get_profile() or {}
         except Exception:
-            fresh_profile = {}
+            fresh = {}
         final_url = (
-            fresh_profile.get("profile_picture_url")
-            or fresh_profile.get("profile_pic")
-            or fresh_profile.get("avatar_url")
+            fresh.get("profile_picture_url")
+            or fresh.get("profile_pic")
+            or fresh.get("avatar_url")
             or (uploaded_url if isinstance(uploaded_url, str) else "")
         )
         return jsonify({
@@ -350,7 +364,7 @@ def api_memories():
     if not client.is_authenticated():
         return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
     try:
-        items = client.moments.get_all_my_moments(limit=36) or []
+        items = client.moments.get_all_my_moments(limit=31) or []
         return jsonify({"ok": True, "items": items})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
@@ -389,17 +403,113 @@ def api_comment():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+@app.route("/api/chat/messages", methods=["GET"])
+def api_chat_messages():
+    if not client.is_authenticated():
+        return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
+    other_uid = (request.args.get("other_user_id") or "").strip()
+    if not other_uid:
+        return jsonify({"ok": False, "error": "Thiếu other_user_id."}), 400
+    try:
+        try:
+            client.chat.mark_as_read(other_user_id=other_uid, send_read_receipt=False)
+        except Exception:
+            pass
+        msgs = client.chat.get_messages(other_user_id=other_uid, fetch_server=True) or []
+        convs = client.chat.get_conversations() or []
+        conv_id = ""
+        for c in convs:
+            if isinstance(c, dict) and (c.get("other_user_id") == other_uid or c.get("recipient_id") == other_uid):
+                conv_id = c.get("id") or c.get("conversation_id") or ""
+                break
+        return jsonify({"ok": True, "my_uid": client.session.uid, "conversation_id": conv_id, "messages": msgs})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/chat/send", methods=["POST"])
 def api_chat_send():
     if not client.is_authenticated():
         return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
-    data = request.get_json(silent=True) or {}
-    uid = (data.get("receiver_uid") or "").strip()
-    text = (data.get("text") or "").strip()
-    if not uid or not text:
-        return jsonify({"ok": False, "error": "Thiếu người nhận hoặc tin nhắn."}), 400
+
+    temp_files = []
     try:
+        uid = (request.form.get("receiver_uid") or request.get_json(silent=True, default={}).get("receiver_uid") or "").strip()
+        text = (request.form.get("text") or request.get_json(silent=True, default={}).get("text") or "").strip()
+        img_file = request.files.get("image")
+
+        if not uid:
+            return jsonify({"ok": False, "error": "Thiếu người nhận."}), 400
+
+        if img_file and img_file.filename:
+            ext = os.path.splitext(img_file.filename)[1] or ".jpg"
+            fd, tmp_img = tempfile.mkstemp(suffix=ext)
+            os.close(fd)
+            img_file.save(tmp_img)
+            temp_files.append(tmp_img)
+            img_url = client.moments.upload_image(tmp_img)
+            if hasattr(client.chat, "send_image"):
+                res = client.chat.send_image(receiver_uid=uid, image_url=img_url, text=text or None)
+            else:
+                payload_txt = f"{text} {img_url}".strip() if text else img_url
+                res = client.chat.send_message(receiver_uid=uid, text=payload_txt)
+            return jsonify({"ok": True, "result": res})
+
+        if not text:
+            return jsonify({"ok": False, "error": "Thiếu nội dung tin nhắn."}), 400
+
         res = client.chat.send_message(receiver_uid=uid, text=text)
+        return jsonify({"ok": True, "result": res})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+    finally:
+        for p in temp_files:
+            if os.path.exists(p):
+                try:
+                    os.remove(p)
+                except Exception:
+                    pass
+
+
+@app.route("/api/chat/reaction", methods=["POST"])
+def api_chat_reaction():
+    if not client.is_authenticated():
+        return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
+    data = request.get_json(silent=True) or {}
+    conv_id = (data.get("conversation_id") or "").strip()
+    msg_id = (data.get("message_id") or "").strip()
+    emoji = (data.get("emoji") or "❤️").strip()
+    other_uid = (data.get("other_user_id") or "").strip()
+    if not msg_id:
+        return jsonify({"ok": False, "error": "Thiếu message_id."}), 400
+    try:
+        res = client.chat.send_reaction(
+            conversation_id=conv_id or None,
+            other_user_id=other_uid or None,
+            message_id=msg_id,
+            emoji=emoji
+        )
+        return jsonify({"ok": True, "result": res})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/chat/delete", methods=["POST"])
+def api_chat_delete():
+    if not client.is_authenticated():
+        return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
+    data = request.get_json(silent=True) or {}
+    conv_id = (data.get("conversation_id") or "").strip()
+    msg_id = (data.get("message_id") or "").strip()
+    other_uid = (data.get("other_user_id") or "").strip()
+    if not msg_id:
+        return jsonify({"ok": False, "error": "Thiếu message_id."}), 400
+    try:
+        res = client.chat.delete_message(
+            conversation_id=conv_id or None,
+            other_user_id=other_uid or None,
+            message_id=msg_id
+        )
         return jsonify({"ok": True, "result": res})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
