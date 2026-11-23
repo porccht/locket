@@ -434,8 +434,9 @@ def api_chat_send():
 
     temp_files = []
     try:
-        uid = (request.form.get("receiver_uid") or request.get_json(silent=True, default={}).get("receiver_uid") or "").strip()
-        text = (request.form.get("text") or request.get_json(silent=True, default={}).get("text") or "").strip()
+        json_body = request.get_json(silent=True) or {}
+        uid = (request.form.get("receiver_uid") or json_body.get("receiver_uid") or "").strip()
+        text = (request.form.get("text") or json_body.get("text") or "").strip()
         img_file = request.files.get("image")
 
         if not uid:
@@ -483,15 +484,23 @@ def api_chat_reaction():
     if not msg_id:
         return jsonify({"ok": False, "error": "Thiếu message_id."}), 400
     try:
-        res = client.chat.send_reaction(
-            conversation_id=conv_id or None,
-            other_user_id=other_uid or None,
-            message_id=msg_id,
-            emoji=emoji
-        )
+        try:
+            res = client.chat.send_reaction(
+                conversation_id=conv_id,
+                message_id=msg_id,
+                emoji=emoji
+            )
+        except TypeError:
+            res = client.chat.send_reaction(
+                other_user_id=other_uid,
+                message_id=msg_id,
+                emoji=emoji
+            )
+        if isinstance(res, dict) and res.get("error"):
+            return jsonify({"ok": False, "error": str(res.get("error"))}), 400
         return jsonify({"ok": True, "result": res})
     except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+        return jsonify({"ok": False, "error": f"Thả icon lỗi: {e}"}), 400
 
 
 @app.route("/api/chat/delete", methods=["POST"])
@@ -505,14 +514,21 @@ def api_chat_delete():
     if not msg_id:
         return jsonify({"ok": False, "error": "Thiếu message_id."}), 400
     try:
-        res = client.chat.delete_message(
-            conversation_id=conv_id or None,
-            other_user_id=other_uid or None,
-            message_id=msg_id
-        )
+        try:
+            res = client.chat.delete_message(
+                conversation_id=conv_id,
+                message_id=msg_id
+            )
+        except TypeError:
+            res = client.chat.delete_message(
+                other_user_id=other_uid,
+                message_id=msg_id
+            )
+        if isinstance(res, dict) and res.get("error"):
+            return jsonify({"ok": False, "error": str(res.get("error"))}), 400
         return jsonify({"ok": True, "result": res})
     except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+        return jsonify({"ok": False, "error": f"Thu hồi lỗi: {e}"}), 400
 
 
 if __name__ == "__main__":
