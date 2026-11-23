@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import tempfile
 from flask import Flask, request, jsonify, render_template
 from locketlam import LocketClient, NoteType
@@ -19,7 +20,7 @@ DEFAULT_META = {
     "birthday": "Tháng 5 16th",
     "email_display": "",
     "gold_badge": True,
-    "frame_style": "rgb-liquid",
+    "frame_style": "frame-rgb-liquid",
     "about_lines": [
         "Thanh Long ❤️‍🩹: Facebook.com/htl165",
         "Thanh Long ❤️‍🩹: Tiktok.com/@tlongmmo",
@@ -42,6 +43,13 @@ QUICK_CAPTIONS = [
 ]
 
 
+def with_cache_bust(url: str) -> str:
+    if not url:
+        return ""
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}cb={int(time.time())}"
+
+
 def load_meta() -> dict:
     data = dict(DEFAULT_META)
     if os.path.exists(CUSTOM_META_FILE):
@@ -55,7 +63,7 @@ def load_meta() -> dict:
     return data
 
 
-def save_meta(new_data: dict):
+def save_meta(new_data: dict) -> dict:
     current = load_meta()
     current.update(new_data)
     try:
@@ -121,7 +129,7 @@ def api_boot():
                     fn = item.get("first_name") or item.get("firstName") or ""
                     ln = item.get("last_name") or item.get("lastName") or ""
                     full = f"{fn} {ln}".strip() or item.get("username") or uid[:8]
-                    av = item.get("profile_pic") or item.get("avatar_url") or item.get("photo_url") or ""
+                    av = item.get("profile_picture_url") or item.get("profile_pic") or item.get("avatar_url") or item.get("photo_url") or ""
                     if uid:
                         friends.append({"uid": uid, "name": full, "avatar": av})
         except Exception:
@@ -129,6 +137,7 @@ def api_boot():
 
     uid = client.session.uid if authed else ""
     username = profile.get("username") or (uid[:10] if uid else "tlong")
+    raw_avatar = profile.get("profile_picture_url") or profile.get("profile_pic") or profile.get("avatar_url") or ""
     return jsonify({
         "authenticated": authed,
         "uid": uid,
@@ -138,7 +147,8 @@ def api_boot():
             "last_name": profile.get("last_name") or "❤️‍🩹",
             "username": username,
             "email": meta.get("email_display") or profile.get("email") or "",
-            "avatar": profile.get("profile_pic") or profile.get("avatar_url") or "",
+            "birthdate": profile.get("birthdate") or meta.get("birthday") or "Tháng 5 16th",
+            "avatar": with_cache_bust(raw_avatar) if raw_avatar else "",
         },
         "meta": meta,
         "friends": friends,
@@ -151,17 +161,10 @@ def api_login():
     data = request.get_json(silent=True) or {}
     identifier = (data.get("identifier") or data.get("email") or data.get("phone") or "").strip()
     password = data.get("password") or ""
-    if not identifier:
-        return jsonify({"ok": False, "error": "Vui lòng nhập email hoặc số điện thoại."}), 400
+    if not identifier or not password:
+        return jsonify({"ok": False, "error": "Vui lòng nhập đầy đủ Email/SĐT và Mật khẩu."}), 400
     try:
-        if password:
-            client.login(identifier, password)
-        else:
-            # Nếu client hỗ trợ gửi OTP/đăng nhập theo số điện thoại hoặc email
-            if hasattr(client.session, "send_login_code"):
-                client.session.send_login_code(identifier)
-                return jsonify({"ok": True, "need_otp": True, "message": "Đã gửi mã xác thực."})
-            return jsonify({"ok": False, "error": "Vui lòng nhập mật khẩu tài khoản."}), 400
+        client.login(identifier, password)
         return jsonify({"ok": True, "uid": client.session.uid})
     except LocketError as e:
         return jsonify({"ok": False, "error": str(e)}), 400
@@ -169,25 +172,19 @@ def api_login():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-@app.route("/api/auth/register", methods=["POST"])
-def api_register():
-    data = request.get_json(silent=True) or {}
-    contact = (data.get("contact") or "").strip()
-    password = data.get("password") or ""
-    first_name = (data.get("first_name") or "").strip()
-    last_name = (data.get("last_name") or "").strip()
-    if not contact:
-        return jsonify({"ok": False, "error": "Vui lòng nhập email hoặc số điện thoại."}), 400
+@app.route("/api/auth/logout", methods=["POST"])
+def api_logout():
     try:
-        if hasattr(client.session, "register"):
-            client.session.register(contact=contact, password=password, first_name=first_name, last_name=last_name)
-            return jsonify({"ok": True, "uid": client.session.uid})
-        if password:
-            client.login(contact, password)
-            return jsonify({"ok": True, "uid": client.session.uid})
-        return jsonify({"ok": False, "error": "Hãy kiểm tra xác thực tài khoản trên Locket hoặc nhập đầy đủ thông tin."}), 400
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 400
+        if hasattr(client.session, "logout"):
+            client.session.logout()
+        else:
+            client.session.id_token = None
+            client.session.uid = None
+        if os.path.exists(SESSION_FILE):
+            os.remove(SESSION_FILE)
+    except Exception:
+        pass
+    return jsonify({"ok": True})
 
 
 @app.route("/api/profile/update", methods=["POST"])
@@ -205,6 +202,11 @@ def api_profile_update():
     try:
         if first_name or last_name:
             client.user.update_name(first_name=first_name or "Thanh Long", last_name=last_name or "")
+        if birthday_val and hasattr(client.user, "update_birthdate"):
+            try:
+                client.user.update_birthdate(birthday_val)
+            except Exception:
+                pass
         meta_patch = {}
         if email_val:
             meta_patch["email_display"] = email_val
@@ -232,8 +234,22 @@ def api_profile_avatar():
     os.close(fd)
     try:
         file.save(tmp_path)
-        res = client.user.update_avatar(tmp_path)
-        return jsonify({"ok": True, "result": res})
+        uploaded_url = client.user.update_avatar(tmp_path)
+        fresh_profile = {}
+        try:
+            fresh_profile = client.user.get_profile() or {}
+        except Exception:
+            fresh_profile = {}
+        final_url = (
+            fresh_profile.get("profile_picture_url")
+            or fresh_profile.get("profile_pic")
+            or fresh_profile.get("avatar_url")
+            or (uploaded_url if isinstance(uploaded_url, str) else "")
+        )
+        return jsonify({
+            "ok": True,
+            "avatar_url": with_cache_bust(final_url) if final_url else ""
+        })
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
     finally:
