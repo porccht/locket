@@ -4,18 +4,18 @@ import time
 import tempfile
 from flask import Flask, request, jsonify, render_template
 from locketlam import LocketClient, NoteType
-from locketlam.exceptions import AuthenticationError, LocketError
+from locketlam.exceptions import LocketError
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SESSION_FILE = os.path.join(BASE_DIR, "locketlam_session.json")
 PRESETS_FILE = os.path.join(BASE_DIR, "locketlam", "caption_presets.json")
 CUSTOM_META_FILE = os.path.join(BASE_DIR, "user_custom_meta.json")
 
-app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 120 * 1024 * 1024
+# Khớp trực tiếp với thư mục "mẫu" trên repo GitHub của bạn
+TEMPLATE_DIR = os.path.join(BASE_DIR, "mẫu") if os.path.isdir(os.path.join(BASE_DIR, "mẫu")) else os.path.join(BASE_DIR, "templates")
 
-client = LocketClient(session_path=SESSION_FILE)
-client.set_device(auto_emulate=True)
+app = Flask(__name__, template_folder=TEMPLATE_DIR)
+app.config["MAX_CONTENT_LENGTH"] = 120 * 1024 * 1024
 
 DEFAULT_META = {
     "birthday": "Tháng 5 16th",
@@ -38,6 +38,22 @@ QUICK_CAPTIONS = [
     {"id": NoteType.DOI_ROI, "label": "Dỗi rồi", "icon": "😤", "colors": ["#FF416C", "#FF4B2B"], "text_color": "#FFFFFF"},
     {"id": NoteType.MUON_DUOC_OM, "label": "Muốn được ôm", "icon": "🫂", "colors": ["#667EEA", "#764BA2"], "text_color": "#FFFFFF"},
 ]
+
+
+def restore_session_from_env():
+    env_json = (os.environ.get("LOCKET_SESSION_JSON") or "").strip()
+    if env_json and not os.path.exists(SESSION_FILE):
+        try:
+            parsed = json.loads(env_json)
+            if isinstance(parsed, dict):
+                with open(SESSION_FILE, "w", encoding="utf-8") as f:
+                    json.dump(parsed, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
+
+
+restore_session_from_env()
+client = LocketClient(session_path=SESSION_FILE)
 
 
 def with_cache_bust(url: str) -> str:
@@ -82,24 +98,6 @@ def save_user_meta(uid: str, patch: dict) -> dict:
     return cur
 
 
-def resolve_conversation_id(other_uid: str, provided_conv_id: str = "") -> str:
-    if provided_conv_id:
-        return provided_conv_id
-    if not other_uid:
-        return ""
-    try:
-        convs = client.chat.get_conversations() or []
-        for c in convs:
-            if not isinstance(c, dict):
-                continue
-            c_other = c.get("other_user_id") or c.get("recipient_id") or ""
-            if c_other == other_uid:
-                return c.get("id") or c.get("conversation_id") or ""
-    except Exception:
-        pass
-    return ""
-
-
 def load_presets() -> list:
     items = list(QUICK_CAPTIONS)
     if os.path.exists(PRESETS_FILE):
@@ -128,6 +126,27 @@ def load_presets() -> list:
     return items
 
 
+def resolve_conversation_uid(other_user_id: str, provided_conv_id: str = "") -> str:
+    if provided_conv_id:
+        return provided_conv_id
+    if not other_user_id:
+        return ""
+    try:
+        convs = client.chat.get_conversations() or []
+        for c in convs:
+            if not isinstance(c, dict):
+                continue
+            peer = c.get("peer_uid") or c.get("other_user_id") or c.get("recipient_id") or ""
+            members = c.get("members") or []
+            if peer == other_user_id or other_user_id in members:
+                cid = c.get("conversation_id") or c.get("id") or ""
+                if cid:
+                    return cid
+    except Exception:
+        pass
+    return ""
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -136,15 +155,13 @@ def index():
 @app.route("/api/boot", methods=["GET"])
 def api_boot():
     authed = client.is_authenticated()
-    uid = client.session.uid if authed else ""
+    uid = getattr(client.session, "uid", "") if authed else ""
     meta = get_user_meta(uid)
     profile = {}
     friends = []
-    conversations = []
 
     if authed:
         try:
-            _ = client.session.get_valid_token()
             p = client.user.get_profile()
             if isinstance(p, dict):
                 profile = p
@@ -158,18 +175,25 @@ def api_boot():
                     fn = item.get("first_name") or item.get("firstName") or ""
                     ln = item.get("last_name") or item.get("lastName") or ""
                     full = f"{fn} {ln}".strip() or item.get("username") or f_uid[:8]
-                    av = item.get("profile_picture_url") or item.get("profile_pic") or item.get("avatar_url") or item.get("photo_url") or ""
+                    av = (
+                        item.get("profile_picture_url")
+                        or item.get("profile_pic")
+                        or item.get("avatar_url")
+                        or item.get("photo_url")
+                        or ""
+                    )
                     if f_uid:
                         friends.append({"uid": f_uid, "name": full, "avatar": av})
         except Exception:
             friends = []
-        try:
-            conversations = client.chat.get_conversations() or []
-        except Exception:
-            conversations = []
 
     username = profile.get("username") or (uid[:10] if uid else "tlong")
-    raw_avatar = profile.get("profile_picture_url") or profile.get("profile_pic") or profile.get("avatar_url") or ""
+    raw_avatar = (
+        profile.get("profile_picture_url")
+        or profile.get("profile_pic")
+        or profile.get("avatar_url")
+        or ""
+    )
     return jsonify({
         "authenticated": authed,
         "uid": uid,
@@ -184,7 +208,6 @@ def api_boot():
         },
         "meta": meta,
         "friends": friends,
-        "conversations": conversations,
         "presets": load_presets(),
     })
 
@@ -195,16 +218,12 @@ def api_login():
     identifier = (data.get("identifier") or data.get("email") or data.get("phone") or "").strip()
     password = data.get("password") or ""
     if not identifier or not password:
-        return jsonify({"ok": False, "error": "Vui lòng nhập đầy đủ Email/SĐT và Mật khẩu."}), 400
+        return jsonify({"ok": False, "error": "Vui lòng nhập đầy đủ Email và Mật khẩu."}), 400
+    if "@" not in identifier:
+        return jsonify({"ok": False, "error": "Đăng nhập hiện hỗ trợ tài khoản Email + Mật khẩu."}), 400
     try:
-        client.login(email=identifier, password=password)
-        try:
-            client.user.set_notification_token(auto_fake=True)
-        except Exception:
-            pass
-        return jsonify({"ok": True, "uid": client.session.uid})
-    except AuthenticationError as e:
-        return jsonify({"ok": False, "error": str(e)}), 400
+        client.login(identifier, password)
+        return jsonify({"ok": True, "uid": getattr(client.session, "uid", "")})
     except LocketError as e:
         return jsonify({"ok": False, "error": str(e)}), 400
     except Exception as e:
@@ -214,11 +233,9 @@ def api_login():
 @app.route("/api/auth/logout", methods=["POST"])
 def api_logout():
     try:
-        if hasattr(client.session, "logout"):
-            client.session.logout()
-        else:
-            client.session.id_token = None
-            client.session.uid = None
+        client.session.id_token = None
+        client.session.refresh_token = None
+        client.session.uid = None
         if os.path.exists(SESSION_FILE):
             os.remove(SESSION_FILE)
     except Exception:
@@ -230,7 +247,7 @@ def api_logout():
 def api_profile_update():
     if not client.is_authenticated():
         return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
-    uid = client.session.uid
+    uid = getattr(client.session, "uid", "")
     data = request.get_json(silent=True) or {}
     first_name = (data.get("first_name") or "").strip()
     last_name = (data.get("last_name") or "").strip()
@@ -242,7 +259,7 @@ def api_profile_update():
     try:
         if first_name or last_name:
             client.user.update_name(first_name=first_name or "Thanh Long", last_name=last_name or "")
-        if birthday_val and hasattr(client.user, "update_birthdate"):
+        if birthday_val:
             try:
                 client.user.update_birthdate(birthday_val)
             except Exception:
@@ -274,7 +291,7 @@ def api_profile_avatar():
     os.close(fd)
     try:
         file.save(tmp_path)
-        uploaded_url = client.user.update_avatar(tmp_path)
+        upd_res = client.user.update_avatar(tmp_path)
         fresh = {}
         try:
             fresh = client.user.get_profile() or {}
@@ -284,7 +301,8 @@ def api_profile_avatar():
             fresh.get("profile_picture_url")
             or fresh.get("profile_pic")
             or fresh.get("avatar_url")
-            or (uploaded_url if isinstance(uploaded_url, str) else "")
+            or (upd_res.get("profile_picture_url") if isinstance(upd_res, dict) else "")
+            or ""
         )
         return jsonify({
             "ok": True,
@@ -437,13 +455,46 @@ def api_chat_messages():
     if not other_uid:
         return jsonify({"ok": False, "error": "Thiếu other_user_id."}), 400
     try:
+        conv_uid = resolve_conversation_uid(other_uid)
         try:
-            client.chat.mark_as_read(other_user_id=other_uid, send_read_receipt=False)
+            client.chat.mark_as_read(
+                conversation_uid=conv_uid or None,
+                other_user_id=other_uid,
+                send_read_receipt=False
+            )
         except Exception:
             pass
-        msgs = client.chat.get_messages(other_user_id=other_uid, fetch_server=True) or []
-        conv_id = resolve_conversation_id(other_uid)
-        return jsonify({"ok": True, "my_uid": client.session.uid, "conversation_id": conv_id, "messages": msgs})
+
+        msgs = client.chat.get_messages(
+            other_user_id=other_uid,
+            conversation_id=conv_uid or None,
+            fetch_server=True
+        ) or []
+
+        normalized = []
+        for m in msgs:
+            if not isinstance(m, dict):
+                continue
+            mid = m.get("message_id") or m.get("id") or m.get("client_token") or ""
+            cid = m.get("conversation_id") or conv_uid
+            if cid and not conv_uid:
+                conv_uid = cid
+            normalized.append({
+                "id": mid,
+                "conversation_id": cid,
+                "sender_id": m.get("sender_uid") or m.get("sender_id") or "",
+                "is_me": bool(m.get("is_me")),
+                "text": m.get("text") or "",
+                "reaction": m.get("reaction") or "",
+                "timestamp": m.get("timestamp") or "",
+            })
+
+        return jsonify({
+            "ok": True,
+            "my_uid": getattr(client.session, "uid", ""),
+            "conversation_id": conv_uid,
+            "messages": normalized,
+        })
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
@@ -470,11 +521,8 @@ def api_chat_send():
             img_file.save(tmp_img)
             temp_files.append(tmp_img)
             img_url = client.moments.upload_image(tmp_img)
-            if hasattr(client.chat, "send_image"):
-                res = client.chat.send_image(receiver_uid=uid, image_url=img_url, text=text or None)
-            else:
-                payload_txt = f"{text} {img_url}".strip() if text else img_url
-                res = client.chat.send_message(receiver_uid=uid, text=payload_txt)
+            payload_txt = f"{text} {img_url}".strip() if text else img_url
+            res = client.chat.send_message(receiver_uid=uid, text=payload_txt)
             return jsonify({"ok": True, "result": res})
 
         if not text:
@@ -499,33 +547,25 @@ def api_chat_reaction():
         return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
     data = request.get_json(silent=True) or {}
     other_uid = (data.get("other_user_id") or "").strip()
-    conv_id = resolve_conversation_id(other_uid, (data.get("conversation_id") or "").strip())
+    conv_id = resolve_conversation_uid(other_uid, (data.get("conversation_id") or "").strip())
     msg_id = (data.get("message_id") or "").strip()
     emoji = (data.get("emoji") or "❤️").strip()
+
     if not msg_id:
         return jsonify({"ok": False, "error": "Thiếu message_id."}), 400
+    if not conv_id:
+        return jsonify({"ok": False, "error": "Không tìm thấy conversation_id của cuộc trò chuyện."}), 400
+
     try:
         res = client.chat.send_reaction(
             conversation_id=conv_id,
             message_id=msg_id,
-            emoji=emoji
+            emoji=emoji,
+            validate_receiver=False
         )
         if isinstance(res, dict) and res.get("error"):
             return jsonify({"ok": False, "error": str(res.get("error"))}), 400
         return jsonify({"ok": True, "result": res})
-    except TypeError:
-        try:
-            res = client.chat.send_reaction(
-                conversation_id=conv_id,
-                other_user_id=other_uid,
-                message_id=msg_id,
-                emoji=emoji
-            )
-            if isinstance(res, dict) and res.get("error"):
-                return jsonify({"ok": False, "error": str(res.get("error"))}), 400
-            return jsonify({"ok": True, "result": res})
-        except Exception as e:
-            return jsonify({"ok": False, "error": f"Thả icon lỗi: {e}"}), 400
     except Exception as e:
         return jsonify({"ok": False, "error": f"Thả icon lỗi: {e}"}), 400
 
@@ -536,32 +576,27 @@ def api_chat_delete():
         return jsonify({"ok": False, "error": "Chưa đăng nhập."}), 401
     data = request.get_json(silent=True) or {}
     other_uid = (data.get("other_user_id") or "").strip()
-    conv_id = resolve_conversation_id(other_uid, (data.get("conversation_id") or "").strip())
+    conv_uid = resolve_conversation_uid(other_uid, (data.get("conversation_id") or "").strip())
     msg_id = (data.get("message_id") or "").strip()
+
     if not msg_id:
         return jsonify({"ok": False, "error": "Thiếu message_id."}), 400
+    if not conv_uid:
+        return jsonify({"ok": False, "error": "Không tìm thấy conversation_uid của cuộc trò chuyện."}), 400
+
     try:
         res = client.chat.delete_message(
-            conversation_id=conv_id,
-            message_id=msg_id
+            conversation_uid=conv_uid,
+            message_uid=msg_id,
+            validate_ownership=True
         )
         if isinstance(res, dict) and res.get("error"):
             return jsonify({"ok": False, "error": str(res.get("error"))}), 400
         return jsonify({"ok": True, "result": res})
-    except TypeError:
-        try:
-            res = client.chat.delete_message(
-                conversation_id=conv_id,
-                other_user_id=other_uid,
-                message_id=msg_id
-            )
-            if isinstance(res, dict) and res.get("error"):
-                return jsonify({"ok": False, "error": str(res.get("error"))}), 400
-            return jsonify({"ok": True, "result": res})
-        except Exception as e:
-            return jsonify({"ok": False, "error": f"Thu hồi tin nhắn lỗi: {e}"}), 400
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
     except Exception as e:
-        return jsonify({"ok": False, "error": f"Thu hồi tin nhắn lỗi: {e}"}), 400
+        return jsonify({"ok": False, "error": f"Thu hồi lỗi: {e}"}), 400
 
 
 if __name__ == "__main__":
