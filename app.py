@@ -11,8 +11,11 @@ SESSION_FILE = os.path.join(BASE_DIR, "locketlam_session.json")
 PRESETS_FILE = os.path.join(BASE_DIR, "locketlam", "caption_presets.json")
 CUSTOM_META_FILE = os.path.join(BASE_DIR, "user_custom_meta.json")
 
-# Khớp trực tiếp với thư mục "mẫu" trên repo GitHub của bạn
-TEMPLATE_DIR = os.path.join(BASE_DIR, "mẫu") if os.path.isdir(os.path.join(BASE_DIR, "mẫu")) else os.path.join(BASE_DIR, "templates")
+TEMPLATE_DIR = (
+    os.path.join(BASE_DIR, "mẫu")
+    if os.path.isdir(os.path.join(BASE_DIR, "mẫu"))
+    else os.path.join(BASE_DIR, "templates")
+)
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
 app.config["MAX_CONTENT_LENGTH"] = 120 * 1024 * 1024
@@ -20,12 +23,13 @@ app.config["MAX_CONTENT_LENGTH"] = 120 * 1024 * 1024
 DEFAULT_META = {
     "birthday": "Tháng 5 16th",
     "email_display": "",
-    "gold_badge": True,
-    "frame_style": "frame-rgb-liquid",
+    "surface_style": "glass",
+    "theme_id": "default",
+    "lite_mode": "auto",
 }
 
 QUICK_CAPTIONS = [
-    {"id": "standard", "label": "Văn bản", "icon": "Aa", "colors": [], "text_color": "#FFFFFF"},
+    {"id": "standard", "label": "Thêm một tin nhắn", "icon": "Aa", "colors": [], "text_color": "#FFFFFF"},
     {"id": NoteType.REVIEW, "label": "Review", "icon": "⭐", "colors": ["#2B2A24", "#3B382A"], "text_color": "#FFD43B"},
     {"id": NoteType.LOCATION, "label": "Location", "icon": "📍", "colors": ["#1E252B", "#2C3842"], "text_color": "#FFFFFF"},
     {"id": NoteType.WEATHER, "label": "Weather", "icon": "☁️", "colors": ["#4A6FA5", "#7790A6"], "text_color": "#FFFFFF"},
@@ -159,6 +163,7 @@ def api_boot():
     meta = get_user_meta(uid)
     profile = {}
     friends = []
+    conversations = []
 
     if authed:
         try:
@@ -186,28 +191,34 @@ def api_boot():
                         friends.append({"uid": f_uid, "name": full, "avatar": av})
         except Exception:
             friends = []
+        try:
+            conversations = client.chat.get_conversations() or []
+        except Exception:
+            conversations = []
 
-    username = profile.get("username") or (uid[:10] if uid else "tlong")
+    username = profile.get("username") or (uid[:10] if uid else "")
     raw_avatar = (
         profile.get("profile_picture_url")
         or profile.get("profile_pic")
         or profile.get("avatar_url")
         or ""
     )
+    share_slug = username or uid or "profile"
     return jsonify({
         "authenticated": authed,
         "uid": uid,
-        "invite_link": f"https://locket.cam/{username}",
+        "share_slug": share_slug,
         "profile": {
-            "first_name": profile.get("first_name") or "Thanh Long",
-            "last_name": profile.get("last_name") or "❤️‍🩹",
+            "first_name": profile.get("first_name") or "",
+            "last_name": profile.get("last_name") or "",
             "username": username,
             "email": meta.get("email_display") or profile.get("email") or getattr(client.session, "email", "") or "",
-            "birthdate": profile.get("birthdate") or meta.get("birthday") or "Tháng 5 16th",
+            "birthdate": profile.get("birthdate") or meta.get("birthday") or "",
             "avatar": with_cache_bust(raw_avatar) if raw_avatar else "",
         },
         "meta": meta,
         "friends": friends,
+        "conversations": conversations,
         "presets": load_presets(),
     })
 
@@ -220,7 +231,7 @@ def api_login():
     if not identifier or not password:
         return jsonify({"ok": False, "error": "Vui lòng nhập đầy đủ Email và Mật khẩu."}), 400
     if "@" not in identifier:
-        return jsonify({"ok": False, "error": "Đăng nhập hiện hỗ trợ tài khoản Email + Mật khẩu."}), 400
+        return jsonify({"ok": False, "error": "Vui lòng nhập địa chỉ Email hợp lệ để đăng nhập."}), 400
     try:
         client.login(identifier, password)
         return jsonify({"ok": True, "uid": getattr(client.session, "uid", "")})
@@ -253,12 +264,13 @@ def api_profile_update():
     last_name = (data.get("last_name") or "").strip()
     email_val = (data.get("email") or "").strip()
     birthday_val = (data.get("birthday") or "").strip()
-    gold_badge = data.get("gold_badge")
-    frame_style = data.get("frame_style")
+    surface_style = (data.get("surface_style") or "").strip()
+    theme_id = (data.get("theme_id") or "").strip()
+    lite_mode = (data.get("lite_mode") or "").strip()
 
     try:
         if first_name or last_name:
-            client.user.update_name(first_name=first_name or "Thanh Long", last_name=last_name or "")
+            client.user.update_name(first_name=first_name, last_name=last_name)
         if birthday_val:
             try:
                 client.user.update_birthdate(birthday_val)
@@ -269,10 +281,12 @@ def api_profile_update():
             patch["email_display"] = email_val
         if birthday_val:
             patch["birthday"] = birthday_val
-        if isinstance(gold_badge, bool):
-            patch["gold_badge"] = gold_badge
-        if frame_style:
-            patch["frame_style"] = frame_style
+        if surface_style in ("glass", "solid"):
+            patch["surface_style"] = surface_style
+        if theme_id:
+            patch["theme_id"] = theme_id
+        if lite_mode in ("off", "lite", "auto"):
+            patch["lite_mode"] = lite_mode
         saved = save_user_meta(uid, patch)
         return jsonify({"ok": True, "meta": saved})
     except Exception as e:
@@ -332,7 +346,6 @@ def api_post():
         text_color = (request.form.get("text_color") or "").strip() or None
         audience = (request.form.get("audience") or "all").strip()
         recipients_raw = (request.form.get("recipients") or "").strip()
-        priority = (request.form.get("priority") or "balanced").strip()
 
         colors = [c.strip() for c in colors_raw.split(",") if c.strip()] or None
         is_private = audience == "private"
@@ -376,7 +389,7 @@ def api_post():
             is_private=is_private,
             recipients=recipients,
             auto_compress=True,
-            priority=priority,
+            priority="balanced",
         )
         return jsonify({"ok": True, "moment": res})
     except LocketError as e:
