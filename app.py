@@ -21,7 +21,7 @@ app = Flask(__name__, template_folder=TEMPLATE_DIR)
 app.config["MAX_CONTENT_LENGTH"] = 120 * 1024 * 1024
 
 DEFAULT_META = {
-    "birthday": "Tháng 5 16th",
+    "birthday": "",
     "email_display": "",
     "surface_style": "glass",
     "theme_id": "default",
@@ -152,8 +152,19 @@ def resolve_conversation_uid(other_user_id: str, provided_conv_id: str = "") -> 
 
 
 @app.route("/")
-def index():
+@app.route("/u/<slug>")
+@app.route("/profile/<slug>")
+@app.route("/terms")
+@app.route("/privacy")
+def index(slug=None):
     return render_template("index.html")
+
+
+@app.errorhandler(404)
+def spa_fallback(e):
+    if request.path.startswith("/api/"):
+        return jsonify({"ok": False, "error": "API endpoint not found"}), 404
+    return render_template("index.html"), 200
 
 
 @app.route("/api/boot", methods=["GET"])
@@ -196,14 +207,14 @@ def api_boot():
         except Exception:
             conversations = []
 
-    username = profile.get("username") or (uid[:10] if uid else "")
+    username = profile.get("username") or ""
     raw_avatar = (
         profile.get("profile_picture_url")
         or profile.get("profile_pic")
         or profile.get("avatar_url")
         or ""
     )
-    share_slug = username or uid or "profile"
+    share_slug = username or uid or ""
     return jsonify({
         "authenticated": authed,
         "uid": uid,
@@ -212,7 +223,8 @@ def api_boot():
             "first_name": profile.get("first_name") or "",
             "last_name": profile.get("last_name") or "",
             "username": username,
-            "email": meta.get("email_display") or profile.get("email") or getattr(client.session, "email", "") or "",
+            "email": profile.get("email") or meta.get("email_display") or getattr(client.session, "email", "") or "",
+            "phone_number": profile.get("phone_number") or "",
             "birthdate": profile.get("birthdate") or meta.get("birthday") or "",
             "avatar": with_cache_bust(raw_avatar) if raw_avatar else "",
         },
